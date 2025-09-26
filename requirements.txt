@@ -1,0 +1,6 @@
+# Instapaper Reader Console App Requirements
+# Core dependencies for the application
+
+instapaper==0.5
+oauth2==1.9.0.post1
+httplib2==0.31.0
