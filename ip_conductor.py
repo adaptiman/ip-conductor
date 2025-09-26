@@ -1,14 +1,18 @@
+"""A simple console application to interact with Instapaper bookmarks."""
+
 import time
 import netrc
 import instapaper
 
 def slow_print(text, delay=0.05):
+    """Prints strings slowly to the console."""
     for char in text:
         print(char, end='', flush=True)
         time.sleep(delay)
     print()
 
 def read_title(i, current_index):
+    """Reads the bookmark title."""
     marks = i.bookmarks()
     if marks:
         if 0 <= current_index < len(marks):
@@ -21,6 +25,7 @@ def read_title(i, current_index):
         print("No bookmarks found.")
 
 def read_article(i, current_index):
+    """Reads the content of the bookmark title."""
     marks = i.bookmarks()
     if marks:
         if 0 <= current_index < len(marks):
@@ -33,19 +38,22 @@ def read_article(i, current_index):
         print("No bookmarks found.")
 
 def next_bookmark(i, current_index):
+    """Navigates to the next bookmark."""
     marks = i.bookmarks()
     if marks and current_index < len(marks) - 1:
         return current_index + 1
     print("Already at the last bookmark.")
     return current_index
 
-def prev_bookmark(i, current_index):
+def prev_bookmark(current_index):
+    """Navigates to the previous bookmark."""
     if current_index > 0:
         return current_index - 1
     print("Already at the first bookmark.")
     return current_index
 
 def first_bookmark(i):
+    """Navigates to the first bookmark."""
     marks = i.bookmarks()
     if marks:
         return 0
@@ -53,6 +61,7 @@ def first_bookmark(i):
     return 0
 
 def last_bookmark(i):
+    """Navigates to the last bookmark."""
     marks = i.bookmarks()
     if marks:
         return len(marks) - 1
@@ -60,15 +69,13 @@ def last_bookmark(i):
     return 0
 
 def show_bookmarks(i):
+    """Displays a list of all bookmarks."""
     marks = i.bookmarks()
     for m in marks:
         print(f"{m.title}")
-        #print(f"URL: {m.url}")
-        #print(f"Progress: {m.progress}")
-        #print(f"Time: {m.time}")
-        #print("")
 
 def add_bookmark(i):
+    """Adds a new bookmark."""
     url = input('Enter URL to add: ').strip()
     # Uncomment and adjust if instapaper.Bookmark works as expected
     b = instapaper.Bookmark(i, {"url": url})
@@ -76,11 +83,12 @@ def add_bookmark(i):
     print(f"Bookmark for {url} added.")
 
 def main():
+    """Main function to run the Instapaper console app."""
     # This is the login block where we authenticate with Instapaper
     # and create an Instapaper instance.
     secrets = netrc.netrc()
-    login, account, password = secrets.authenticators('instapaper.com')
-    consumerkey, account, consumersecret = secrets.authenticators('api.instapaper.com')
+    login, _, password = secrets.authenticators('instapaper.com')
+    consumerkey, _, consumersecret = secrets.authenticators('api.instapaper.com')
     i = instapaper.Instapaper(consumerkey, consumersecret)
     i.login(login, password)
 
@@ -104,7 +112,7 @@ def main():
             current_index = next_bookmark(i, current_index)
             read_title(i, current_index)
         elif cmd == 'previous' or cmd == 'prev':
-            current_index = prev_bookmark(i, current_index)
+            current_index = prev_bookmark(current_index)
             read_title(i, current_index)
         elif cmd == 'first':
             current_index = first_bookmark(i)
@@ -115,7 +123,8 @@ def main():
         elif cmd == 'read':
             read_article(i, current_index)
         else:
-            print("Unknown command. Try 'bookmarks', 'add', 'title', 'next', 'prev', 'first', 'last', 'read', or 'exit'.")
+            print("Unknown command. Try 'bookmarks', 'add', 'title', 'next', 'prev', "
+                  "'first', 'last', 'read', or 'exit'.")
 
 if __name__ == "__main__":
     main()
