@@ -74,6 +74,47 @@ def show_bookmarks(i):
     for m in marks:
         print(f"{m.title}")
 
+def delete_bookmark(i, current_index):
+    """Deletes the currently selected bookmark."""
+    marks = i.bookmarks()
+    if marks:
+        if 0 <= current_index < len(marks):
+            m = marks[current_index]
+            confirmation = input(f"Are you sure you want to delete '{m.title}'? (y/N): ").strip().lower()
+            if confirmation == 'y' or confirmation == 'yes':
+                m.delete()
+                print(f"Bookmark '{m.title}' deleted.")
+                return True
+            else:
+                print("Deletion cancelled.")
+                return False
+        else:
+            print("Current index is out of range.")
+            return False
+    else:
+        print("No bookmarks found.")
+        return False
+
+def tag_bookmark(i, current_index):
+    """Tags the currently selected bookmark with the 'Review' tag."""
+    marks = i.bookmarks()
+    if marks:
+        if 0 <= current_index < len(marks):
+            m = marks[current_index]
+            try:
+                m.add_tag("Review")
+                print(f"Bookmark '{m.title}' tagged with 'Review'.")
+                return True
+            except Exception as e:
+                print(f"Error tagging bookmark: {e}")
+                return False
+        else:
+            print("Current index is out of range.")
+            return False
+    else:
+        print("No bookmarks found.")
+        return False
+
 def add_bookmark(i):
     """Adds a new bookmark."""
     url = input('Enter URL to add: ').strip()
@@ -94,9 +135,14 @@ def main():
 
     # Here begins the interactive console
     print("Welcome to the Instapaper Console App!")
-    print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, or 'exit' to quit.")
+    print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, 'delete' to delete current bookmark, 'tag' to tag current bookmark, or 'exit' to quit.")
     print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read'")
     current_index = 0
+    
+    # Display the current bookmark title at startup
+    #print("\nCurrent bookmark:")
+    read_title(i, current_index)
+    
     while True:
         cmd = input('> ').strip().lower()
         if cmd == 'exit':
@@ -106,6 +152,10 @@ def main():
             show_bookmarks(i)
         elif cmd == 'add':
             add_bookmark(i)
+        elif cmd == 'delete':
+            delete_bookmark(i, current_index)
+        elif cmd == 'tag':
+            tag_bookmark(i, current_index)
         elif cmd == 'title':
             read_title(i, current_index)
         elif cmd == 'next':
@@ -123,7 +173,7 @@ def main():
         elif cmd == 'read':
             read_article(i, current_index)
         else:
-            print("Unknown command. Try 'bookmarks', 'add', 'title', 'next', 'prev', "
+            print("Unknown command. Try 'bookmarks', 'add', 'delete', 'tag', 'title', 'next', 'prev', "
                   "'first', 'last', 'read', or 'exit'.")
 
 if __name__ == "__main__":
