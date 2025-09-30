@@ -95,18 +95,18 @@ def delete_bookmark(i, current_index):
         print("No bookmarks found.")
         return False
 
-def tag_bookmark(i, current_index):
-    """Tags the currently selected bookmark with the 'Review' tag."""
+def star_bookmark(i, current_index):
+    """Stars the currently selected bookmark."""
     marks = i.bookmarks()
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
             try:
-                m.add_tag("Review")
-                print(f"Bookmark '{m.title}' tagged with 'Review'.")
+                m.star()
+                print(f"Bookmark '{m.title}' starred.")
                 return True
             except Exception as e:
-                print(f"Error tagging bookmark: {e}")
+                print(f"Error starring bookmark: {e}")
                 return False
         else:
             print("Current index is out of range.")
@@ -135,7 +135,7 @@ def main():
 
     # Here begins the interactive console
     print("Welcome to the Instapaper Console App!")
-    print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, 'delete' to delete current bookmark, 'tag' to tag current bookmark, or 'exit' to quit.")
+    print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, 'delete' to delete current bookmark, 'star' to star current bookmark, or 'exit' to quit.")
     print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read'")
     current_index = 0
     
@@ -154,8 +154,8 @@ def main():
             add_bookmark(i)
         elif cmd == 'delete':
             delete_bookmark(i, current_index)
-        elif cmd == 'tag':
-            tag_bookmark(i, current_index)
+        elif cmd == 'star':
+            star_bookmark(i, current_index)
         elif cmd == 'title':
             read_title(i, current_index)
         elif cmd == 'next':
@@ -164,7 +164,7 @@ def main():
         elif cmd == 'previous' or cmd == 'prev':
             current_index = prev_bookmark(current_index)
             read_title(i, current_index)
-        elif cmd == 'first':
+        elif cmd == 'first':    
             current_index = first_bookmark(i)
             read_title(i, current_index)
         elif cmd == 'last':
@@ -173,7 +173,7 @@ def main():
         elif cmd == 'read':
             read_article(i, current_index)
         else:
-            print("Unknown command. Try 'bookmarks', 'add', 'delete', 'tag', 'title', 'next', 'prev', "
+            print("Unknown command. Try 'bookmarks', 'add', 'delete', 'star', 'title', 'next', 'prev', "
                   "'first', 'last', 'read', or 'exit'.")
 
 if __name__ == "__main__":
