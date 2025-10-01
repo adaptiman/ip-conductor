@@ -1,0 +1,9 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:conda",
+    "python-envs.defaultPackageManager": "ms-python.python:conda",
+    "python-envs.pythonProjects": [],
+    // Point to the conda executable you use (miniconda3 base)
+    "python.condaPath": "C:\\Users\\DavidSweeney\\miniconda3\\Scripts\\conda.exe",
+    // Prefer this interpreter for the workspace (the 'ipc' env)
+    "python.defaultInterpreterPath": "C:\\Users\\DavidSweeney\\miniconda3\\envs\\ipc\\python.exe"
+}

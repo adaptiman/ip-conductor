@@ -13,7 +13,7 @@ def slow_print(text, delay=0.05):
 
 def read_title(i, current_index):
     """Reads the bookmark title."""
-    marks = i.bookmarks()
+    marks = i.bookmarks(limit=25)
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
@@ -26,7 +26,7 @@ def read_title(i, current_index):
 
 def read_article(i, current_index):
     """Reads the content of the bookmark title."""
-    marks = i.bookmarks()
+    marks = i.bookmarks(limit=25)
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
@@ -39,7 +39,7 @@ def read_article(i, current_index):
 
 def next_bookmark(i, current_index):
     """Navigates to the next bookmark."""
-    marks = i.bookmarks()
+    marks = i.bookmarks(limit=25)
     if marks and current_index < len(marks) - 1:
         return current_index + 1
     print("Already at the last bookmark.")
@@ -54,7 +54,7 @@ def prev_bookmark(current_index):
 
 def first_bookmark(i):
     """Navigates to the first bookmark."""
-    marks = i.bookmarks()
+    marks = i.bookmarks(limit=25)
     if marks:
         return 0
     print("No bookmarks found.")
@@ -62,7 +62,7 @@ def first_bookmark(i):
 
 def last_bookmark(i):
     """Navigates to the last bookmark."""
-    marks = i.bookmarks()
+    marks = i.bookmarks(limit=25)
     if marks:
         return len(marks) - 1
     print("No bookmarks found.")
@@ -70,13 +70,13 @@ def last_bookmark(i):
 
 def show_bookmarks(i):
     """Displays a list of all bookmarks."""
-    marks = i.bookmarks()
+    marks = i.bookmarks(limit=25)
     for m in marks:
         print(f"{m.title}")
 
 def delete_bookmark(i, current_index):
     """Deletes the currently selected bookmark."""
-    marks = i.bookmarks()
+    marks = i.bookmarks(limit=25)
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
@@ -97,7 +97,7 @@ def delete_bookmark(i, current_index):
 
 def star_bookmark(i, current_index):
     """Stars the currently selected bookmark."""
-    marks = i.bookmarks()
+    marks = i.bookmarks(limit=25)
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
