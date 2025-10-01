@@ -4,6 +4,9 @@ import time
 import netrc
 import instapaper
 
+# Global configuration
+BOOKMARK_LIMIT = 25
+
 def slow_print(text, delay=0.05):
     """Prints strings slowly to the console."""
     for char in text:
@@ -14,7 +17,7 @@ def slow_print(text, delay=0.05):
 def read_title(i, current_index):
     """Reads the bookmark title."""
     try:
-        marks = i.bookmarks(limit=25)
+        marks = i.bookmarks(limit=BOOKMARK_LIMIT)
     except (AttributeError, ValueError, RuntimeError, OSError) as e:
         print(f"Error fetching bookmarks: {e}")
         return
@@ -31,7 +34,7 @@ def read_title(i, current_index):
 def read_article(i, current_index):
     """Reads the content of the bookmark title."""
     try:
-        marks = i.bookmarks(limit=25)
+        marks = i.bookmarks(limit=BOOKMARK_LIMIT)
     except (AttributeError, ValueError, RuntimeError, OSError) as e:
         print(f"Error fetching bookmarks: {e}")
         return
@@ -47,7 +50,7 @@ def read_article(i, current_index):
 
 def next_bookmark(i, current_index):
     """Navigates to the next bookmark."""
-    marks = i.bookmarks(limit=25)
+    marks = i.bookmarks(limit=BOOKMARK_LIMIT)
     if marks and current_index < len(marks) - 1:
         return current_index + 1
     print("Already at the last bookmark.")
@@ -62,7 +65,7 @@ def prev_bookmark(current_index):
 
 def first_bookmark(i):
     """Navigates to the first bookmark."""
-    marks = i.bookmarks(limit=25)
+    marks = i.bookmarks(limit=BOOKMARK_LIMIT)
     if marks:
         return 0
     print("No bookmarks found.")
@@ -70,7 +73,7 @@ def first_bookmark(i):
 
 def last_bookmark(i):
     """Navigates to the last bookmark."""
-    marks = i.bookmarks(limit=25)
+    marks = i.bookmarks(limit=BOOKMARK_LIMIT)
     if marks:
         return len(marks) - 1
     print("No bookmarks found.")
@@ -79,7 +82,7 @@ def last_bookmark(i):
 def show_bookmarks(i):
     """Displays a list of all bookmarks."""
     try:
-        marks = i.bookmarks(limit=25)
+        marks = i.bookmarks(limit=BOOKMARK_LIMIT)
     except (AttributeError, ValueError, RuntimeError, OSError) as e:
         print(f"Error fetching bookmarks: {e}")
         return
@@ -88,7 +91,7 @@ def show_bookmarks(i):
 
 def delete_bookmark(i, current_index):
     """Deletes the currently selected bookmark."""
-    marks = i.bookmarks(limit=25)
+    marks = i.bookmarks(limit=BOOKMARK_LIMIT)
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
@@ -109,7 +112,7 @@ def delete_bookmark(i, current_index):
 
 def star_bookmark(i, current_index):
     """Stars the currently selected bookmark."""
-    marks = i.bookmarks(limit=25)
+    marks = i.bookmarks(limit=BOOKMARK_LIMIT)
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
@@ -141,6 +144,56 @@ def add_bookmark(i):
     except (AttributeError, ValueError, RuntimeError, OSError) as e:
         print(f"Error adding bookmark: {e}")
 
+def create_highlight(i, current_index):
+    """Creates a highlight for the currently selected bookmark."""
+    try:
+        marks = i.bookmarks(limit=BOOKMARK_LIMIT)
+    except (AttributeError, ValueError, RuntimeError, OSError) as e:
+        print(f"Error fetching bookmarks: {e}")
+        return False
+        
+    if marks:
+        if 0 <= current_index < len(marks):
+            m = marks[current_index]
+            print(f"Creating highlight for: {m.title}")
+            print("Enter the text you want to highlight (press Enter twice to finish):")
+            
+            lines = []
+            empty_line_count = 0
+            while empty_line_count < 2:
+                line = input()
+                if line.strip() == "":
+                    empty_line_count += 1
+                else:
+                    empty_line_count = 0
+                lines.append(line)
+            
+            # Remove the last empty lines
+            while lines and lines[-1].strip() == "":
+                lines.pop()
+                
+            highlight_text = "\n".join(lines).strip()
+            
+            if highlight_text:
+                try:
+                    # Create the highlight using the instapaper create_highlight method
+                    m.create_highlight(highlight_text)
+                    print("Highlight created successfully!")
+                    print(f"Highlighted text: {highlight_text[:100]}{'...' if len(highlight_text) > 100 else ''}")
+                    return True
+                except (AttributeError, ValueError, RuntimeError, OSError) as e:
+                    print(f"Error creating highlight: {e}")
+                    return False
+            else:
+                print("No text entered. Highlight cancelled.")
+                return False
+        else:
+            print("Current index is out of range.")
+            return False
+    else:
+        print("No bookmarks found.")
+        return False
+
 def main():
     """Main function to run the Instapaper console app."""
     # This is the login block where we authenticate with Instapaper
@@ -153,7 +206,7 @@ def main():
 
     # Here begins the interactive console
     print("Welcome to the Instapaper Console App!")
-    print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, 'delete' to delete current bookmark, 'star' to star current bookmark, or 'exit' to quit.")
+    print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, 'delete' to delete current bookmark, 'star' to star current bookmark, 'highlight' to create a highlight, or 'exit' to quit.")
     print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read'")
     current_index = 0
 
@@ -174,6 +227,8 @@ def main():
             delete_bookmark(i, current_index)
         elif cmd == 'star':
             star_bookmark(i, current_index)
+        elif cmd == 'highlight':
+            create_highlight(i, current_index)
         elif cmd == 'title':
             read_title(i, current_index)
         elif cmd == 'next':
@@ -191,7 +246,7 @@ def main():
         elif cmd == 'read':
             read_article(i, current_index)
         else:
-            print("Unknown command. Try 'bookmarks', 'add', 'delete', 'star', 'title', 'next', 'prev', "
+            print("Unknown command. Try 'bookmarks', 'add', 'delete', 'star', 'highlight', 'title', 'next', 'prev', "
                   "'first', 'last', 'read', or 'exit'.")
 
 if __name__ == "__main__":
