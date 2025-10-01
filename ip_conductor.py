@@ -13,7 +13,11 @@ def slow_print(text, delay=0.05):
 
 def read_title(i, current_index):
     """Reads the bookmark title."""
-    marks = i.bookmarks(limit=25)
+    try:
+        marks = i.bookmarks(limit=25)
+    except (AttributeError, ValueError, RuntimeError, OSError) as e:
+        print(f"Error fetching bookmarks: {e}")
+        return
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
@@ -26,7 +30,11 @@ def read_title(i, current_index):
 
 def read_article(i, current_index):
     """Reads the content of the bookmark title."""
-    marks = i.bookmarks(limit=25)
+    try:
+        marks = i.bookmarks(limit=25)
+    except (AttributeError, ValueError, RuntimeError, OSError) as e:
+        print(f"Error fetching bookmarks: {e}")
+        return
     if marks:
         if 0 <= current_index < len(marks):
             m = marks[current_index]
@@ -70,7 +78,11 @@ def last_bookmark(i):
 
 def show_bookmarks(i):
     """Displays a list of all bookmarks."""
-    marks = i.bookmarks(limit=25)
+    try:
+        marks = i.bookmarks(limit=25)
+    except (AttributeError, ValueError, RuntimeError, OSError) as e:
+        print(f"Error fetching bookmarks: {e}")
+        return
     for m in marks:
         print(f"{m.title}")
 
@@ -105,8 +117,11 @@ def star_bookmark(i, current_index):
                 m.star()
                 print(f"Bookmark '{m.title}' starred.")
                 return True
-            except Exception as e:
+            except AttributeError as e:
                 print(f"Error starring bookmark: {e}")
+                return False
+            except (ValueError, RuntimeError, OSError) as e:
+                print(f"API error: {e}")
                 return False
         else:
             print("Current index is out of range.")
@@ -118,10 +133,13 @@ def star_bookmark(i, current_index):
 def add_bookmark(i):
     """Adds a new bookmark."""
     url = input('Enter URL to add: ').strip()
-    # Uncomment and adjust if instapaper.Bookmark works as expected
-    b = instapaper.Bookmark(i, {"url": url})
-    b.save()
-    print(f"Bookmark for {url} added.")
+    try:
+        # Uncomment and adjust if instapaper.Bookmark works as expected
+        b = instapaper.Bookmark(i, {"url": url})
+        b.save()
+        print(f"Bookmark for {url} added.")
+    except (AttributeError, ValueError, RuntimeError, OSError) as e:
+        print(f"Error adding bookmark: {e}")
 
 def main():
     """Main function to run the Instapaper console app."""
@@ -138,7 +156,7 @@ def main():
     print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, 'delete' to delete current bookmark, 'star' to star current bookmark, or 'exit' to quit.")
     print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read'")
     current_index = 0
-    
+
     # Display the current bookmark title at startup
     #print("\nCurrent bookmark:")
     read_title(i, current_index)
@@ -164,7 +182,7 @@ def main():
         elif cmd == 'previous' or cmd == 'prev':
             current_index = prev_bookmark(current_index)
             read_title(i, current_index)
-        elif cmd == 'first':    
+        elif cmd == 'first':
             current_index = first_bookmark(i)
             read_title(i, current_index)
         elif cmd == 'last':
