@@ -1,7 +1,7 @@
 """ArticleManager class for managing Instapaper bookmark operations and navigation."""
 
 import netrc
-import instapaper
+import instapaper # type: ignore
 
 
 class ArticleManager:
