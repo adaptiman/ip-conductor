@@ -5,7 +5,7 @@ from article_manager import ArticleManager
 
 def example_usage():
     """Demonstrates various ways to use the ArticleManager class."""
-    
+
     # Initialize the manager
     print("Creating ArticleManager instance...")
     try:
@@ -33,7 +33,7 @@ def example_usage():
         print(f"Moved to next bookmark: {title}")
     else:
         print("Already at last bookmark")
-    
+
     if manager.prev_bookmark():
         title = manager.get_current_title()
         print(f"Moved back to previous bookmark: {title}")
@@ -62,7 +62,7 @@ def example_usage():
 
     # Example 5: Working with bookmark operations
     print("\n🎮 Bookmark operations example:")
-    
+
     # Get current article content
     article = manager.get_current_article()
     if article:
@@ -70,12 +70,12 @@ def example_usage():
         print(f"Preview: {article[:100]}...")
     else:
         print("No article content available")
-    
+
     # Check bookmark count and current position
     total_count = manager.get_bookmark_count()
     current_index = manager.get_current_index()
     is_valid = manager.is_valid_index()
-    
+
     print(f"Total bookmarks: {total_count}")
     print(f"Current index: {current_index}")
     print(f"Index is valid: {is_valid}")
@@ -89,8 +89,8 @@ def example_usage():
             print(f"Now at: {info[0]} (1 of {info[3]})")
     else:
         print("No bookmarks to navigate to")
-    
-    print("Going to last bookmark...")  
+
+    print("Going to last bookmark...")
     if manager.last_bookmark():
         info = manager.get_current_bookmark_info()
         if info:

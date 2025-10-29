@@ -6,14 +6,14 @@ import instapaper
 
 class ArticleManager:
     """Manages Instapaper bookmark operations and navigation."""
-    
+
     def __init__(self, bookmark_limit=25):
         """Initialize the ArticleManager with Instapaper API connection."""
         self.bookmark_limit = bookmark_limit
         self.current_index = 0
         self.instapaper_client = None
         self._initialize_client()
-    
+
     def _initialize_client(self):
         """Initialize the Instapaper client with credentials from .netrc."""
         try:
@@ -22,9 +22,16 @@ class ArticleManager:
             consumerkey, _, consumersecret = secrets.authenticators('api.instapaper.com')
             self.instapaper_client = instapaper.Instapaper(consumerkey, consumersecret)
             self.instapaper_client.login(login, password)
-        except (AttributeError, ValueError, RuntimeError, OSError, KeyError, FileNotFoundError) as e:
+        except (
+            AttributeError,
+            ValueError,
+            RuntimeError,
+            OSError,
+            KeyError,
+            FileNotFoundError,
+        ) as e:
             raise RuntimeError(f"Error initializing Instapaper client: {e}") from e
-    
+
     def _get_bookmarks(self):
         """Get bookmarks with error handling."""
         try:
@@ -37,19 +44,18 @@ class ArticleManager:
         marks = self._get_bookmarks()
         if not marks:
             return None
-            
+
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
             return str(m.title)
-        else:
-            return None
+        return None
 
     def get_current_article(self):
         """Gets the content of the current bookmark."""
         marks = self._get_bookmarks()
         if not marks:
             return None
-            
+
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
             return str(m.text)
@@ -99,7 +105,7 @@ class ArticleManager:
         marks = self._get_bookmarks()
         if not marks:
             return (False, None, "No bookmarks found")
-            
+
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
             title = m.title
@@ -116,7 +122,7 @@ class ArticleManager:
         marks = self._get_bookmarks()
         if not marks:
             return (False, None, "No bookmarks found")
-            
+
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
             title = m.title
@@ -132,7 +138,7 @@ class ArticleManager:
         """Adds a new bookmark. Returns (success, url, error_msg)."""
         if not url or not url.strip():
             return (False, url, "No URL provided")
-            
+
         url = url.strip()
         try:
             self.instapaper_client.add_bookmark(url)
@@ -141,7 +147,10 @@ class ArticleManager:
             return (False, url, str(e))
 
     def create_highlight_for_current(self, highlight_text):
-        """Creates a highlight for the current bookmark. Returns (success, title, highlight_text, error_msg)."""
+        """Creates a highlight for the current bookmark.
+
+        Returns (success, title, highlight_text, error_msg).
+        """
         marks = self._get_bookmarks()
         if not marks:
             return (False, None, highlight_text, "No bookmarks found")
@@ -149,10 +158,10 @@ class ArticleManager:
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
             title = m.title
-            
+
             if not highlight_text or not highlight_text.strip():
                 return (False, title, highlight_text, "No text provided for highlight")
-                
+
             highlight_text = highlight_text.strip()
             try:
                 m.create_highlight(highlight_text)
@@ -194,11 +203,13 @@ class ArticleManager:
         return marks is not None and 0 <= self.current_index < len(marks)
 
     def get_current_bookmark_info(self):
-        """Gets info about the current bookmark. Returns (title, url, index, total_count) or None."""
+        """Gets info about the current bookmark.
+
+        Returns (title, url, index, total_count) or None.
+        """
         marks = self._get_bookmarks()
-        if not marks or not (0 <= self.current_index < len(marks)):
+        if not marks or not 0 <= self.current_index < len(marks):
             return None
-        
+
         m = marks[self.current_index]
         return (str(m.title), str(m.url), self.current_index, len(marks))
-

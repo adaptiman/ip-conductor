@@ -52,7 +52,7 @@ def handle_add_bookmark(manager):
     if not url:
         print("No URL entered. Bookmark not added.")
         return
-        
+
     success, url, error = manager.add_bookmark_url(url)
     if success:
         print(f"Bookmark added successfully: {url}")
@@ -67,7 +67,7 @@ def handle_delete_bookmark(manager):
     if not info:
         print("No bookmark to delete.")
         return
-        
+
     title = info[0]
     confirmation = input(f"Are you sure you want to delete '{title}'? (y/N): ").strip().lower()
     if confirmation in ['y', 'yes']:
@@ -95,7 +95,7 @@ def handle_create_highlight(manager):
     if not info:
         print("No bookmark to create highlight for.")
         return
-        
+
     title = info[0]
     print(f"Creating highlight for: {title}")
     print("Enter the text you want to highlight (press Enter twice to finish):")
