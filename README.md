@@ -2,6 +2,16 @@
 
 A Python console application for reading and managing Instapaper bookmarks.
 
+## Architecture
+
+The application is built with a modular design:
+
+- **`article_manager.py`** - Contains the `ArticleManager` class with all Instapaper functionality
+- **`ip_conductor.py`** - Console interface that uses the `ArticleManager` class  
+- **`example_usage.py`** - Demonstrates how to use `ArticleManager` in other programs
+
+This design allows you to easily integrate Instapaper functionality into other Python applications by importing the `ArticleManager` class.
+
 ## Setup
 
 ### Prerequisites
@@ -119,10 +129,32 @@ To change the number of bookmarks fetched, modify the `BOOKMARK_LIMIT` constant 
 BOOKMARK_LIMIT = 50  # Change from default 25 to 50
 ```
 
+## Using ArticleManager in Other Programs
+
+The `ArticleManager` class can be easily imported and used in other Python applications:
+
+```python
+from article_manager import ArticleManager
+
+# Create an instance
+manager = ArticleManager(bookmark_limit=25)
+
+# Use the methods programmatically
+manager.read_title()           # Print current bookmark title
+manager.next_bookmark()       # Navigate to next bookmark
+manager.show_bookmarks()      # Display all bookmarks
+manager.add_bookmark()        # Add a new bookmark (interactive)
+
+# Access the Instapaper client directly for advanced operations
+bookmarks = manager.instapaper_client.bookmarks(limit=10)
+```
+
+See `example_usage.py` for a complete demonstration of using `ArticleManager` programmatically.
+
 ### Adding New Commands
 The application is designed to be easily extensible. To add new commands:
 
-1. Create a new function following the existing pattern
+1. Add a new method to the `ArticleManager` class in `article_manager.py`
 2. Add error handling using the established exception types
-3. Add the command to the main command loop in the `main()` function
+3. Add the command to the main command loop in the `run()` method
 4. Update the help messages to include the new command
