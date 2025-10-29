@@ -1,6 +1,5 @@
 """ArticleManager class for managing Instapaper bookmark operations and navigation."""
 
-import time
 import netrc
 import instapaper
 
@@ -24,49 +23,38 @@ class ArticleManager:
             self.instapaper_client = instapaper.Instapaper(consumerkey, consumersecret)
             self.instapaper_client.login(login, password)
         except (AttributeError, ValueError, RuntimeError, OSError, KeyError, FileNotFoundError) as e:
-            print(f"Error initializing Instapaper client: {e}")
-            raise
+            raise RuntimeError(f"Error initializing Instapaper client: {e}") from e
     
     def _get_bookmarks(self):
         """Get bookmarks with error handling."""
         try:
             return self.instapaper_client.bookmarks(limit=self.bookmark_limit)
-        except (AttributeError, ValueError, RuntimeError, OSError) as e:
-            print(f"Error fetching bookmarks: {e}")
+        except (AttributeError, ValueError, RuntimeError, OSError):
             return None
-    
-    def slow_print(self, text, delay=0.05):
-        """Prints strings slowly to the console."""
-        for char in text:
-            print(char, end='', flush=True)
-            time.sleep(delay)
-        print()
 
-    def read_title(self):
-        """Reads the bookmark title."""
+    def get_current_title(self):
+        """Gets the current bookmark title."""
         marks = self._get_bookmarks()
         if not marks:
-            print("No bookmarks found.")
-            return
+            return None
             
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
-            print(str(m.title))
+            return str(m.title)
         else:
-            print("Current index is out of range.")
+            return None
 
-    def read_article(self):
-        """Reads the content of the bookmark title."""
+    def get_current_article(self):
+        """Gets the content of the current bookmark."""
         marks = self._get_bookmarks()
         if not marks:
-            print("No bookmarks found.")
-            return
+            return None
             
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
-            print(str(m.text))
+            return str(m.text)
         else:
-            print("Current index is out of range.")
+            return None
 
     def next_bookmark(self):
         """Navigates to the next bookmark."""
@@ -74,7 +62,6 @@ class ArticleManager:
         if marks and self.current_index < len(marks) - 1:
             self.current_index += 1
             return True
-        print("Already at the last bookmark.")
         return False
 
     def prev_bookmark(self):
@@ -82,7 +69,6 @@ class ArticleManager:
         if self.current_index > 0:
             self.current_index -= 1
             return True
-        print("Already at the first bookmark.")
         return False
 
     def first_bookmark(self):
@@ -91,7 +77,6 @@ class ArticleManager:
         if marks:
             self.current_index = 0
             return True
-        print("No bookmarks found.")
         return False
 
     def last_bookmark(self):
@@ -100,188 +85,120 @@ class ArticleManager:
         if marks:
             self.current_index = len(marks) - 1
             return True
-        print("No bookmarks found.")
         return False
 
-    def show_bookmarks(self):
-        """Displays a list of all bookmarks."""
+    def get_bookmarks_list(self):
+        """Gets a list of all bookmark titles."""
         marks = self._get_bookmarks()
         if not marks:
-            print("No bookmarks found.")
-            return
-        for m in marks:
-            print(f"{m.title}")
+            return []
+        return [m.title for m in marks]
 
-    def delete_bookmark(self):
-        """Deletes the currently selected bookmark."""
+    def delete_current_bookmark(self):
+        """Deletes the currently selected bookmark. Returns (success, title, error_msg)."""
         marks = self._get_bookmarks()
         if not marks:
-            print("No bookmarks found.")
-            return False
+            return (False, None, "No bookmarks found")
             
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
-            confirmation = input(
-                f"Are you sure you want to delete '{m.title}'? (y/N): "
-            ).strip().lower()
-            if confirmation == 'y' or confirmation == 'yes':
+            title = m.title
+            try:
                 m.delete()
-                print(f"Bookmark '{m.title}' deleted.")
-                return True
-            else:
-                print("Deletion cancelled.")
-                return False
+                return (True, title, None)
+            except (AttributeError, ValueError, RuntimeError, OSError) as e:
+                return (False, title, str(e))
         else:
-            print("Current index is out of range.")
-            return False
+            return (False, None, "Current index is out of range")
 
-    def star_bookmark(self):
-        """Stars the currently selected bookmark."""
+    def star_current_bookmark(self):
+        """Stars the currently selected bookmark. Returns (success, title, error_msg)."""
         marks = self._get_bookmarks()
         if not marks:
-            print("No bookmarks found.")
-            return False
+            return (False, None, "No bookmarks found")
             
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
+            title = m.title
             try:
                 m.star()
-                print(f"Bookmark '{m.title}' starred successfully.")
-                return True
+                return (True, title, None)
             except (AttributeError, ValueError, RuntimeError, OSError) as e:
-                print(f"Error starring bookmark: {e}")
-                return False
+                return (False, title, str(e))
         else:
-            print("Current index is out of range.")
-            return False
+            return (False, None, "Current index is out of range")
 
-    def add_bookmark(self):
-        """Adds a new bookmark."""
-        url = input("Enter the URL to bookmark: ").strip()
-        if url:
+    def add_bookmark_url(self, url):
+        """Adds a new bookmark. Returns (success, url, error_msg)."""
+        if not url or not url.strip():
+            return (False, url, "No URL provided")
+            
+        url = url.strip()
+        try:
+            self.instapaper_client.add_bookmark(url)
+            return (True, url, None)
+        except (AttributeError, ValueError, RuntimeError, OSError) as e:
+            return (False, url, str(e))
+
+    def create_highlight_for_current(self, highlight_text):
+        """Creates a highlight for the current bookmark. Returns (success, title, highlight_text, error_msg)."""
+        marks = self._get_bookmarks()
+        if not marks:
+            return (False, None, highlight_text, "No bookmarks found")
+
+        if 0 <= self.current_index < len(marks):
+            m = marks[self.current_index]
+            title = m.title
+            
+            if not highlight_text or not highlight_text.strip():
+                return (False, title, highlight_text, "No text provided for highlight")
+                
+            highlight_text = highlight_text.strip()
             try:
-                self.instapaper_client.add_bookmark(url)
-                print(f"Bookmark added successfully: {url}")
-                return True
+                m.create_highlight(highlight_text)
+                return (True, title, highlight_text, None)
             except (AttributeError, ValueError, RuntimeError, OSError) as e:
-                print(f"Error adding bookmark: {e}")
-                return False
+                return (False, title, highlight_text, str(e))
         else:
-            print("No URL entered. Bookmark not added.")
-            return False
+            return (False, None, highlight_text, "Current index is out of range")
 
-    def create_highlight(self):
-        """Creates a highlight for the current bookmark."""
+    def archive_current_bookmark(self):
+        """Archives the currently selected bookmark. Returns (success, title, error_msg)."""
         marks = self._get_bookmarks()
         if not marks:
-            print("No bookmarks found.")
-            return False
+            return (False, None, "No bookmarks found")
 
         if 0 <= self.current_index < len(marks):
             m = marks[self.current_index]
-            print(f"Creating highlight for: {m.title}")
-            print("Enter the text you want to highlight (press Enter twice to finish):")
-
-            lines = []
-            empty_line_count = 0
-            while empty_line_count < 2:
-                line = input()
-                if line.strip() == "":
-                    empty_line_count += 1
-                else:
-                    empty_line_count = 0
-                lines.append(line)
-
-            # Remove the last empty lines
-            while lines and lines[-1].strip() == "":
-                lines.pop()
-
-            highlight_text = "\n".join(lines).strip()
-
-            if highlight_text:
-                try:
-                    # Create the highlight using the instapaper create_highlight method
-                    m.create_highlight(highlight_text)
-                    print("Highlight created successfully!")
-                    ellipsis = '...' if len(highlight_text) > 100 else ''
-                    print(f"Highlighted text: {highlight_text[:100]}{ellipsis}")
-                    return True
-                except (AttributeError, ValueError, RuntimeError, OSError) as e:
-                    print(f"Error creating highlight: {e}")
-                    return False
-            else:
-                print("No text entered. Highlight cancelled.")
-                return False
-        else:
-            print("Current index is out of range.")
-            return False
-
-    def archive_bookmark(self):
-        """Archives the currently selected bookmark."""
-        marks = self._get_bookmarks()
-        if not marks:
-            print("No bookmarks found.")
-            return False
-
-        if 0 <= self.current_index < len(marks):
-            m = marks[self.current_index]
+            title = m.title
             try:
                 m.archive()
-                print(f"Bookmark '{m.title}' archived successfully.")
-                return True
+                return (True, title, None)
             except (AttributeError, ValueError, RuntimeError, OSError) as e:
-                print(f"Error archiving bookmark: {e}")
-                return False
+                return (False, title, str(e))
         else:
-            print("Current index is out of range.")
-            return False
+            return (False, None, "Current index is out of range")
 
-    def run(self):
-        """Main method to run the interactive console."""
-        print("Welcome to the Instapaper Console App!")
-        print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, "
-              "'delete' to delete current bookmark, 'star' to star current bookmark, "
-              "'highlight' to create a highlight, 'archive' to archive current bookmark, "
-              "or 'exit' to quit.")
-        print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read'")
+    def get_bookmark_count(self):
+        """Gets the total number of bookmarks."""
+        marks = self._get_bookmarks()
+        return len(marks) if marks else 0
 
-        # Display the current bookmark title at startup
-        self.read_title()
+    def get_current_index(self):
+        """Gets the current bookmark index (0-based)."""
+        return self.current_index
 
-        while True:
-            cmd = input('> ').strip().lower()
-            if cmd == 'exit':
-                print("Goodbye!")
-                break
-            elif cmd == 'bookmarks':
-                self.show_bookmarks()
-            elif cmd == 'add':
-                self.add_bookmark()
-            elif cmd == 'delete':
-                self.delete_bookmark()
-            elif cmd == 'star':
-                self.star_bookmark()
-            elif cmd == 'highlight':
-                self.create_highlight()
-            elif cmd == 'archive':
-                self.archive_bookmark()
-            elif cmd == 'title':
-                self.read_title()
-            elif cmd == 'next':
-                if self.next_bookmark():
-                    self.read_title()
-            elif cmd == 'previous' or cmd == 'prev':
-                if self.prev_bookmark():
-                    self.read_title()
-            elif cmd == 'first':
-                if self.first_bookmark():
-                    self.read_title()
-            elif cmd == 'last':
-                if self.last_bookmark():
-                    self.read_title()
-            elif cmd == 'read':
-                self.read_article()
-            else:
-                print("Unknown command. Try 'bookmarks', 'add', 'delete', 'star', "
-                      "'highlight', 'archive', 'title', 'next', 'prev', 'first', "
-                      "'last', 'read', or 'exit'.")
+    def is_valid_index(self):
+        """Checks if the current index is valid."""
+        marks = self._get_bookmarks()
+        return marks is not None and 0 <= self.current_index < len(marks)
+
+    def get_current_bookmark_info(self):
+        """Gets info about the current bookmark. Returns (title, url, index, total_count) or None."""
+        marks = self._get_bookmarks()
+        if not marks or not (0 <= self.current_index < len(marks)):
+            return None
+        
+        m = marks[self.current_index]
+        return (str(m.title), str(m.url), self.current_index, len(marks))
+

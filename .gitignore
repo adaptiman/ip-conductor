@@ -86,3 +86,6 @@ Thumbs.db
 # Personal/sensitive files
 .netrc
 *.log
+
+# Test files
+test_manager.py
