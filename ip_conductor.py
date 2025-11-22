@@ -84,22 +84,18 @@ def handle_add_bookmark(manager):
 
 def handle_delete_bookmark(manager):
     """Handle deleting the current bookmark."""
-    # Get current bookmark info for confirmation
     info = manager.get_current_bookmark_info()
     if not info:
         print("No bookmark to delete.")
         return
 
-    title = info[0]
-    confirmation = input(f"Are you sure you want to delete '{title}'? (y/N): ").strip().lower()
-    if confirmation in ['y', 'yes']:
-        success, deleted_title, error = manager.delete_current_bookmark()
-        if success:
-            print(f"Bookmark '{deleted_title}' deleted.")
-        else:
-            print(f"Error deleting bookmark: {error}")
+    success, deleted_title, error = manager.delete_current_bookmark()
+    if success:
+        print(f"'{deleted_title}' deleted.")
+        # After deletion, display the title of the current bookmark (which is now the next one)
+        display_title(manager)
     else:
-        print("Deletion cancelled.")
+        print(f"Error deleting bookmark: {error}")
 
 
 def handle_star_bookmark(manager):
@@ -203,7 +199,7 @@ def handle_speak(manager):
                 wrapped_lines = textwrap.wrap(sentence_text, width=line_width)
                 # Join with \n\r to ensure cursor returns to column 0 after each line
                 wrapped_text = "\n\r".join(wrapped_lines)
-                
+
                 # Clear screen
                 sys.stdout.write("\033[2J")
                 # Calculate vertical center (roughly middle of screen)
