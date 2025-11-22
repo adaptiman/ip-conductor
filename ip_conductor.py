@@ -24,26 +24,43 @@ def display_title(manager):
             print("Current index is out of range.")
 
 
-def display_article(manager):
-    """Display the current bookmark content."""
-    article = manager.get_current_article()
-    if article:
-        print(article)
-    else:
-        if manager.get_bookmark_count() == 0:
-            print("No bookmarks found.")
+def display_article(manager, bookmark_number=None):
+    """Display the bookmark content.
+
+    Args:
+        manager: The ArticleManager instance
+        bookmark_number: Optional bookmark number (1-based) to read. If None, reads current bookmark.
+    """
+    if bookmark_number is not None:
+        # Navigate to and read specific bookmark by number
+        if manager.set_bookmark_by_number(bookmark_number):
+            article = manager.get_current_article()
+            if article:
+                print(article)
+            else:
+                print(f"Unable to read bookmark {bookmark_number}")
         else:
-            print("Current index is out of range.")
+            print(f"Invalid bookmark number: {bookmark_number}")
+    else:
+        # Read current bookmark
+        article = manager.get_current_article()
+        if article:
+            print(article)
+        else:
+            if manager.get_bookmark_count() == 0:
+                print("No bookmarks found.")
+            else:
+                print("Current index is out of range.")
 
 
 def display_bookmarks(manager):
-    """Display all bookmarks."""
+    """Display all bookmarks with numbers."""
     bookmarks = manager.get_bookmarks_list()
     if not bookmarks:
         print("No bookmarks found.")
     else:
-        for title in bookmarks:
-            print(title)
+        for i, title in enumerate(bookmarks, start=1):
+            print(f"{i}. {title}")
 
 
 def handle_add_bookmark(manager):
@@ -169,45 +186,58 @@ def run_console(manager):
           "'delete' to delete current bookmark, 'star' to star current bookmark, "
           "'highlight' to create a highlight, 'archive' to archive current bookmark, "
           "or 'exit' to quit.")
-    print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read'")
+    print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read', 'read <number>'")
 
     # Display the current bookmark title at startup
     display_title(manager)
 
     while True:
         try:
-            cmd = input('> ').strip().lower()
-            if cmd == 'exit':
+            cmd = input('> ').strip()
+            cmd_lower = cmd.lower()
+
+            if cmd_lower == 'exit':
                 print("Goodbye!")
                 break
-            elif cmd == 'bookmarks':
+            elif cmd_lower == 'bookmarks':
                 display_bookmarks(manager)
-            elif cmd == 'add':
+            elif cmd_lower == 'add':
                 handle_add_bookmark(manager)
-            elif cmd == 'delete':
+            elif cmd_lower == 'delete':
                 handle_delete_bookmark(manager)
-            elif cmd == 'star':
+            elif cmd_lower == 'star':
                 handle_star_bookmark(manager)
-            elif cmd == 'highlight':
+            elif cmd_lower == 'highlight':
                 handle_create_highlight(manager)
-            elif cmd == 'archive':
+            elif cmd_lower == 'archive':
                 handle_archive_bookmark(manager)
-            elif cmd == 'title':
+            elif cmd_lower == 'title':
                 display_title(manager)
-            elif cmd == 'next':
+            elif cmd_lower == 'next':
                 handle_navigation(manager, "next")
-            elif cmd == 'previous' or cmd == 'prev':
+            elif cmd_lower == 'previous' or cmd_lower == 'prev':
                 handle_navigation(manager, "prev")
-            elif cmd == 'first':
+            elif cmd_lower == 'first':
                 handle_navigation(manager, "first")
-            elif cmd == 'last':
+            elif cmd_lower == 'last':
                 handle_navigation(manager, "last")
-            elif cmd == 'read':
+            elif cmd_lower == 'read':
                 display_article(manager)
+            elif cmd_lower.startswith('read '):
+                # Handle "read <number>" command
+                try:
+                    parts = cmd.split()
+                    if len(parts) == 2:
+                        bookmark_num = int(parts[1])
+                        display_article(manager, bookmark_num)
+                    else:
+                        print("Usage: read <number>")
+                except ValueError:
+                    print("Invalid bookmark number. Usage: read <number>")
             else:
                 print("Unknown command. Try 'bookmarks', 'add', 'delete', 'star', "
                       "'highlight', 'archive', 'title', 'next', 'prev', 'first', "
-                      "'last', 'read', or 'exit'.")
+                      "'last', 'read', 'read <number>', or 'exit'.")
         except KeyboardInterrupt:
             print("\nGoodbye!")
             break

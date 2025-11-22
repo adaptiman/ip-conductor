@@ -228,3 +228,45 @@ class ArticleManager:
 
         m = marks[self.current_index]
         return (str(m.title), str(m.url), self.current_index, len(marks))
+
+    def set_bookmark_by_number(self, bookmark_number):
+        """Set the current bookmark by its number (1-based).
+
+        Args:
+            bookmark_number: The bookmark number (1-based) to jump to.
+
+        Returns:
+            True if successful, False if the number is out of range.
+        """
+        marks = self._get_bookmarks()
+        if not marks:
+            return False
+
+        # Convert 1-based to 0-based index
+        index = bookmark_number - 1
+
+        if 0 <= index < len(marks):
+            self.current_index = index
+            return True
+        return False
+
+    def get_article_by_number(self, bookmark_number):
+        """Get the article content for a specific bookmark number (1-based).
+
+        Args:
+            bookmark_number: The bookmark number (1-based) to get content for.
+
+        Returns:
+            Article text if successful, None if the number is out of range.
+        """
+        marks = self._get_bookmarks()
+        if not marks:
+            return None
+
+        # Convert 1-based to 0-based index
+        index = bookmark_number - 1
+
+        if 0 <= index < len(marks):
+            m = marks[index]
+            return str(m.text)
+        return None
