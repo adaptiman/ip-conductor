@@ -3,6 +3,7 @@
 import os
 from dotenv import load_dotenv
 import instapaper # type: ignore
+import spacy
 
 
 class ArticleManager:
@@ -13,6 +14,7 @@ class ArticleManager:
         self.bookmark_limit = bookmark_limit
         self.current_index = 0
         self.instapaper_client = None
+        self._nlp = None  # Lazy load spaCy model
         self._initialize_client()
 
     def _initialize_client(self):
@@ -165,8 +167,12 @@ class ArticleManager:
         except (AttributeError, ValueError, RuntimeError, OSError) as e:
             return (False, url, str(e))
 
-    def create_highlight_for_current(self, highlight_text):
+    def create_highlight_for_current(self, highlight_text, position=0):
         """Creates a highlight for the current bookmark.
+
+        Args:
+            highlight_text: The text to highlight.
+            position: Optional. The 0-indexed character position of the text in the content.
 
         Returns (success, title, highlight_text, error_msg).
         """
@@ -183,6 +189,8 @@ class ArticleManager:
 
             highlight_text = highlight_text.strip()
             try:
+                # Try creating highlight without position parameter
+                # The Instapaper API may be strict about position matching
                 m.create_highlight(highlight_text)
                 return (True, title, highlight_text, None)
             except (AttributeError, ValueError, RuntimeError, OSError) as e:
@@ -274,3 +282,40 @@ class ArticleManager:
             m = marks[index]
             return str(m.text)
         return None
+
+    def _load_spacy_model(self):
+        """Lazy load the spaCy model when needed."""
+        if self._nlp is None:
+            self._nlp = spacy.load('en_core_web_sm')
+        return self._nlp
+
+    def parse_current_article_sentences(self):
+        """Parse the current article into sentences using spaCy.
+
+        Returns:
+            list[tuple[str, int, int]]: A list of tuples containing (sentence_text, start_char, end_char),
+                                        or None if no article is available.
+        """
+        article_text = self.get_current_article()
+        if not article_text:
+            return None
+
+        # Load spaCy model
+        nlp = self._load_spacy_model()
+
+        # Process the text
+        doc = nlp(article_text)
+
+        # Extract sentences with their character indices
+        sentences = []
+        for sent in doc.sents:
+            text = sent.text.strip()
+            if text:
+                # Adjust start_char to account for leading whitespace that was stripped
+                # Find how many leading characters were removed
+                leading_spaces = len(sent.text) - len(sent.text.lstrip())
+                start_char = sent.start_char + leading_spaces
+                end_char = sent.end_char
+                sentences.append((text, start_char, end_char))
+
+        return sentences if sentences else None

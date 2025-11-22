@@ -1,6 +1,9 @@
 """A simple console application to interact with Instapaper bookmarks."""
 
 import time
+import sys
+import tty
+import termios
 from article_manager import ArticleManager
 
 
@@ -155,6 +158,86 @@ def handle_archive_bookmark(manager):
         print(f"Error archiving bookmark: {error}")
 
 
+def handle_speak(manager):
+    """Handle speak mode - display article sentences one at a time.
+
+    Uses space key to move to next sentence, b to go back, h to highlight current sentence, q key to quit.
+    """
+    print("Parsing article into sentences...")
+    sentences = manager.parse_current_article_sentences()
+
+    if not sentences:
+        print("No article content available to speak.")
+        return
+
+    print(f"\n--- Entering Speak Mode ({len(sentences)} sentences) ---")
+    print("Press SPACE for next, B for back, H to highlight, Q to quit\n")
+
+    # Save terminal settings
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+
+    try:
+        # Set terminal to raw mode to read single characters
+        tty.setraw(fd)
+
+        sentence_index = 0
+        display_sentence = True
+
+        while sentence_index < len(sentences):
+            # Unpack sentence tuple (text, start_char, end_char)
+            sentence_text, start_char, end_char = sentences[sentence_index]
+
+            # Display index data on first line, sentence on second line (only if flag is True)
+            if display_sentence:
+                sys.stdout.write(f"\r\033[K")  # Clear current line
+                sys.stdout.write(f"[{sentence_index + 1}/{len(sentences)}] [{start_char},{end_char}]\n\r{sentence_text}")
+                sys.stdout.flush()
+
+            # Wait for key press
+            key = sys.stdin.read(1)
+
+            if key.lower() == 'q':
+                break
+            elif key == ' ':
+                sentence_index += 1
+                print()  # New line after advancing
+                display_sentence = True
+            elif key.lower() == 'b':
+                # Go back one sentence
+                if sentence_index > 0:
+                    sentence_index -= 1
+                    print()  # New line after going back
+                display_sentence = True
+                # If already at first sentence, do nothing (stay at index 0)
+            elif key.lower() == 'h':
+                # Highlight the current sentence
+                sys.stdout.write("\n\r")  # New line and return to start
+                sys.stdout.flush()
+                # Restore terminal to normal mode temporarily for the highlight operation
+                termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+                success, title, highlight, error = manager.create_highlight_for_current(sentence_text, start_char)
+                if success:
+                    print(f"✓ Highlighted: {sentence_text[:50]}{'...' if len(sentence_text) > 50 else ''}")
+                else:
+                    print(f"✗ Error highlighting: {error}")
+
+                # Set terminal back to raw mode and wait for next command
+                tty.setraw(fd)
+                display_sentence = False
+            else:
+                # For any other key, don't redisplay
+                display_sentence = False
+
+    finally:
+        # Restore terminal settings
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+
+        # Now print the exit message with normal terminal behavior
+        print("\n\n--- Exiting Speak Mode ---")
+
+
 def handle_navigation(manager, direction):
     """Handle navigation commands."""
     if direction == "next":
@@ -185,7 +268,7 @@ def run_console(manager):
     print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, "
           "'delete' to delete current bookmark, 'star' to star current bookmark, "
           "'highlight' to create a highlight, 'archive' to archive current bookmark, "
-          "or 'exit' to quit.")
+          "'speak' to read article sentence by sentence, or 'exit' to quit.")
     print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read', 'read <number>'")
 
     # Display the current bookmark title at startup
@@ -211,6 +294,8 @@ def run_console(manager):
                 handle_create_highlight(manager)
             elif cmd_lower == 'archive':
                 handle_archive_bookmark(manager)
+            elif cmd_lower == 'speak':
+                handle_speak(manager)
             elif cmd_lower == 'title':
                 display_title(manager)
             elif cmd_lower == 'next':
@@ -244,7 +329,7 @@ def run_console(manager):
                         print(f"Invalid article number: {bookmark_num}")
                 except ValueError:
                     print("Unknown command. Try 'bookmarks', 'articles', 'add', 'delete', 'star', "
-                          "'highlight', 'archive', 'title', 'next', 'prev', 'first', "
+                          "'highlight', 'archive', 'speak', 'title', 'next', 'prev', 'first', "
                           "'last', 'read', 'read <number>', or 'exit'.")
         except KeyboardInterrupt:
             print("\nGoodbye!")

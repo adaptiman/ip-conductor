@@ -42,6 +42,11 @@ This design allows you to easily integrate Instapaper functionality into other P
    pip install -r requirements.txt
    ```
 
+5. Download the spaCy language model:
+   ```bash
+   python -m spacy download en_core_web_sm
+   ```
+
 ### Configuration
 
 1. Copy the example environment file:
@@ -80,6 +85,7 @@ python ip_conductor.py
 - `star` - Star the currently selected article
 - `archive` - Archive the currently selected article
 - `highlight` - Create a highlight for the current article (multi-line text input)
+- `speak` - Enter sentence-by-sentence reading mode with highlighting support
 
 #### Navigation
 - `title` - Show current article title
@@ -94,6 +100,25 @@ python ip_conductor.py
 #### System
 - `exit` - Quit the application
 
+### Speak Mode
+
+Speak mode provides an interactive sentence-by-sentence reading experience with intelligent sentence parsing powered by spaCy:
+
+1. Enter speak mode: `speak`
+2. Navigate and highlight using keyboard commands:
+   - **SPACE** - Display next sentence
+   - **B** - Go back to previous sentence
+   - **H** - Highlight current sentence (saves to Instapaper)
+   - **Q** - Quit speak mode
+
+Each sentence displays with metadata showing its position in the article:
+```
+[sentence_number/total_sentences] [start_char,end_char]
+Sentence text appears here.
+```
+
+When you highlight a sentence with **H**, a confirmation message appears, and you can continue navigating with SPACE or B.
+
 ### Features
 
 - **Environment-based configuration**: Secure credential storage using `.env` files
@@ -101,6 +126,8 @@ python ip_conductor.py
 - **Numbered article listing**: Articles are displayed with numbers for easy reference
 - **Quick navigation**: Jump to any article by simply entering its number
 - **Direct article access**: Jump to and read any article by its number
+- **Speak mode**: Interactive sentence-by-sentence reading with NLP-powered sentence parsing
+- **Smart highlighting**: Highlight sentences directly from speak mode with automatic syncing to Instapaper
 - **Configurable article limit**: The application fetches 25 articles by default (configurable in `ArticleManager` initialization)
 - **Error handling**: Comprehensive error handling for network issues, API errors, and invalid operations
 - **Interactive highlights**: Create multi-line highlights by entering text and pressing Enter twice to finish
@@ -134,6 +161,15 @@ Web Development Best Practices
 > read 5
 [Displays content of "Docker for Beginners"]
 
+# Enter speak mode for sentence-by-sentence reading
+> speak
+[1/350] [0,45]
+Docker is a platform for developing applications.
+# Press SPACE to see next sentence
+# Press H to highlight current sentence
+# Press B to go back to previous sentence
+# Press Q to quit speak mode
+
 # Navigate to next article
 > next
 [Now at article 6]
@@ -160,6 +196,8 @@ that I want to remember.
 - `oauth2==1.9.0.post1` - OAuth authentication
 - `httplib2==0.31.0` - HTTP client library
 - `python-dotenv==1.2.1` - Environment variable management
+- `spacy==3.8.3` - Natural language processing for sentence parsing
+- `en-core-web-sm` - English language model for spaCy
 - `setuptools==80.9.0` - Python package utilities (required for Python 3.12+)
 
 All dependencies are listed in `requirements.txt` and will be installed automatically.
@@ -206,6 +244,10 @@ success, title, error = manager.delete_current_bookmark()
 
 # Create highlights
 success, title, highlight, error = manager.create_highlight_for_current("Important text")
+
+# Parse article into sentences for speak mode functionality
+sentences = manager.parse_current_article_sentences()
+# Returns list of tuples: [(sentence_text, start_char, end_char), ...]
 
 # Access the Instapaper client directly for advanced operations
 bookmarks = manager.instapaper_client.bookmarks(limit=10)
