@@ -177,6 +177,10 @@ def handle_speak(manager):
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
 
+    # Get terminal size
+    import shutil
+    terminal_height = shutil.get_terminal_size().lines
+
     try:
         # Set terminal to raw mode to read single characters
         tty.setraw(fd)
@@ -185,13 +189,20 @@ def handle_speak(manager):
         display_sentence = True
 
         while sentence_index < len(sentences):
-            # Unpack sentence tuple (text, start_char, end_char)
-            sentence_text, start_char, end_char = sentences[sentence_index]
+            # Get sentence text
+            sentence_text = sentences[sentence_index]
 
-            # Display index data on first line, sentence on second line (only if flag is True)
+            # Display sentence centered vertically (only if flag is True)
             if display_sentence:
-                sys.stdout.write(f"\r\033[K")  # Clear current line
-                sys.stdout.write(f"[{sentence_index + 1}/{len(sentences)}] [{start_char},{end_char}]\n\r{sentence_text}")
+                # Clear screen
+                sys.stdout.write("\033[2J")
+                # Calculate vertical center (roughly middle of screen)
+                padding_lines = terminal_height // 2 - 2
+                # Move cursor to top and add padding
+                sys.stdout.write("\033[H")  # Move cursor to home position
+                sys.stdout.write("\n" * padding_lines)
+                # Display sentence count and sentence
+                sys.stdout.write(f"[{sentence_index + 1}/{len(sentences)}]\n\r{sentence_text}")
                 sys.stdout.flush()
 
             # Wait for key press
@@ -201,13 +212,11 @@ def handle_speak(manager):
                 break
             elif key == ' ':
                 sentence_index += 1
-                print()  # New line after advancing
                 display_sentence = True
             elif key.lower() == 'b':
                 # Go back one sentence
                 if sentence_index > 0:
                     sentence_index -= 1
-                    print()  # New line after going back
                 display_sentence = True
                 # If already at first sentence, do nothing (stay at index 0)
             elif key.lower() == 'h':
@@ -217,7 +226,7 @@ def handle_speak(manager):
                 # Restore terminal to normal mode temporarily for the highlight operation
                 termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
-                success, title, highlight, error = manager.create_highlight_for_current(sentence_text, start_char)
+                success, title, highlight, error = manager.create_highlight_for_current(sentence_text)
                 if success:
                     print(f"✓ Highlighted: {sentence_text[:50]}{'...' if len(sentence_text) > 50 else ''}")
                 else:

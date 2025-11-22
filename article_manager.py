@@ -293,8 +293,7 @@ class ArticleManager:
         """Parse the current article into sentences using spaCy.
 
         Returns:
-            list[tuple[str, int, int]]: A list of tuples containing (sentence_text, start_char, end_char),
-                                        or None if no article is available.
+            list[str]: A list of sentence strings, or None if no article is available.
         """
         article_text = self.get_current_article()
         if not article_text:
@@ -306,16 +305,11 @@ class ArticleManager:
         # Process the text
         doc = nlp(article_text)
 
-        # Extract sentences with their character indices
+        # Extract sentences
         sentences = []
         for sent in doc.sents:
             text = sent.text.strip()
             if text:
-                # Adjust start_char to account for leading whitespace that was stripped
-                # Find how many leading characters were removed
-                leading_spaces = len(sent.text) - len(sent.text.lstrip())
-                start_char = sent.start_char + leading_spaces
-                end_char = sent.end_char
-                sentences.append((text, start_char, end_char))
+                sentences.append(text)
 
         return sentences if sentences else None

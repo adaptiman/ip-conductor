@@ -111,9 +111,9 @@ Speak mode provides an interactive sentence-by-sentence reading experience with 
    - **H** - Highlight current sentence (saves to Instapaper)
    - **Q** - Quit speak mode
 
-Each sentence displays with metadata showing its position in the article:
+Each sentence displays with its position in the article:
 ```
-[sentence_number/total_sentences] [start_char,end_char]
+[sentence_number/total_sentences]
 Sentence text appears here.
 ```
 
@@ -247,7 +247,7 @@ success, title, highlight, error = manager.create_highlight_for_current("Importa
 
 # Parse article into sentences for speak mode functionality
 sentences = manager.parse_current_article_sentences()
-# Returns list of tuples: [(sentence_text, start_char, end_char), ...]
+# Returns list of sentence strings: ["First sentence.", "Second sentence.", ...]
 
 # Access the Instapaper client directly for advanced operations
 bookmarks = manager.instapaper_client.bookmarks(limit=10)
