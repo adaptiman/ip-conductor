@@ -156,7 +156,11 @@ class ArticleManager:
 
         url = url.strip()
         try:
-            self.instapaper_client.add_bookmark(url)
+            # Create a new Bookmark object and save it
+            # The instapaper library requires creating a Bookmark instance
+            # with the parent client and params, then calling save()
+            bookmark = instapaper.Bookmark(self.instapaper_client, {'url': url})
+            bookmark.save()
             return (True, url, None)
         except (AttributeError, ValueError, RuntimeError, OSError) as e:
             return (False, url, str(e))
