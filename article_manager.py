@@ -1,6 +1,7 @@
 """ArticleManager class for managing Instapaper bookmark operations and navigation."""
 
-import netrc
+import os
+from dotenv import load_dotenv
 import instapaper # type: ignore
 
 
@@ -15,11 +16,26 @@ class ArticleManager:
         self._initialize_client()
 
     def _initialize_client(self):
-        """Initialize the Instapaper client with credentials from .netrc."""
+        """Initialize the Instapaper client with credentials from .env file."""
+        # Load environment variables from .env file
+        load_dotenv()
+        
         try:
-            secrets = netrc.netrc()
-            login, _, password = secrets.authenticators('instapaper.com')
-            consumerkey, _, consumersecret = secrets.authenticators('api.instapaper.com')
+            # Get credentials from environment variables
+            login = os.getenv('INSTAPAPER_USERNAME')
+            password = os.getenv('INSTAPAPER_PASSWORD')
+            consumerkey = os.getenv('INSTAPAPER_CONSUMER_KEY')
+            consumersecret = os.getenv('INSTAPAPER_CONSUMER_SECRET')
+            
+            # Validate that all credentials are present
+            if not all([login, password, consumerkey, consumersecret]):
+                missing = []
+                if not login: missing.append('INSTAPAPER_USERNAME')
+                if not password: missing.append('INSTAPAPER_PASSWORD')
+                if not consumerkey: missing.append('INSTAPAPER_CONSUMER_KEY')
+                if not consumersecret: missing.append('INSTAPAPER_CONSUMER_SECRET')
+                raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+            
             self.instapaper_client = instapaper.Instapaper(consumerkey, consumersecret)
             self.instapaper_client.login(login, password)
         except (
@@ -28,7 +44,6 @@ class ArticleManager:
             RuntimeError,
             OSError,
             KeyError,
-            FileNotFoundError,
         ) as e:
             raise RuntimeError(f"Error initializing Instapaper client: {e}") from e
 
