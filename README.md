@@ -1,6 +1,6 @@
 # Instapaper Reader Console App
 
-A Python console application for reading and managing Instapaper bookmarks.
+A Python console application for reading and managing Instapaper articles.
 
 ## Architecture
 
@@ -73,21 +73,22 @@ python ip_conductor.py
 
 ### Available Commands
 
-#### Bookmark Management
-- `bookmarks` - List all bookmarks (up to 25 by default)
-- `add` - Add a new bookmark by entering a URL
-- `delete` - Delete the currently selected bookmark (with confirmation)
-- `star` - Star the currently selected bookmark
-- `archive` - Archive the currently selected bookmark
-- `highlight` - Create a highlight for the current bookmark (multi-line text input)
+#### Article Management
+- `articles` / `bookmarks` - List all articles with numbers (up to 25 by default)
+- `add` - Add a new article by entering a URL
+- `delete` - Delete the currently selected article (with confirmation)
+- `star` - Star the currently selected article
+- `archive` - Archive the currently selected article
+- `highlight` - Create a highlight for the current article (multi-line text input)
 
 #### Navigation
-- `title` - Show current bookmark title
-- `next` - Move to next bookmark
-- `prev` / `previous` - Move to previous bookmark
-- `first` - Jump to first bookmark
-- `last` - Jump to last bookmark
-- `read` - Read current bookmark content
+- `title` - Show current article title
+- `next` - Move to next article
+- `prev` / `previous` - Move to previous article
+- `first` - Jump to first article
+- `last` - Jump to last article
+- `read` - Read current article content
+- `read <number>` - Read a specific article by its number from the list
 
 #### System
 - `exit` - Quit the application
@@ -96,7 +97,9 @@ python ip_conductor.py
 
 - **Environment-based configuration**: Secure credential storage using `.env` files
 - **Virtual environment support**: Isolated dependencies per project
-- **Configurable bookmark limit**: The application fetches 25 bookmarks by default (configurable in `ArticleManager` initialization)
+- **Numbered article listing**: Articles are displayed with numbers for easy reference
+- **Direct article access**: Jump to and read any article by its number
+- **Configurable article limit**: The application fetches 25 articles by default (configurable in `ArticleManager` initialization)
 - **Error handling**: Comprehensive error handling for network issues, API errors, and invalid operations
 - **Interactive highlights**: Create multi-line highlights by entering text and pressing Enter twice to finish
 - **Confirmation prompts**: Safe deletion with confirmation prompts
@@ -110,14 +113,16 @@ source .venv/bin/activate
 # Start the application
 python ip_conductor.py
 
-# List all bookmarks
-> bookmarks
+# List all articles with numbers
+> articles
 
-# Navigate to a specific bookmark
-> first
+# Read a specific article by number
+> read 3
+
+# Navigate to another article
 > next
 
-# Read the current bookmark
+# Read the current article
 > read
 
 # Create a highlight
@@ -126,7 +131,7 @@ Enter the text you want to highlight (press Enter twice to finish):
 This is important text
 that I want to remember.
 
-# Star the bookmark
+# Star the article
 > star
 
 # Archive when done
@@ -148,8 +153,8 @@ All dependencies are listed in `requirements.txt` and will be installed automati
 
 ## Customization
 
-### Bookmark Limit
-To change the number of bookmarks fetched, pass a different limit when creating the `ArticleManager` instance:
+### Article Limit
+To change the number of articles fetched, pass a different limit when creating the `ArticleManager` instance:
 
 ```python
 # In ip_conductor.py main() function
@@ -166,18 +171,21 @@ from article_manager import ArticleManager
 # Create an instance
 manager = ArticleManager(bookmark_limit=25)
 
-# Get bookmark information
+# Get article information
 title = manager.get_current_title()
 article_text = manager.get_current_article()
-bookmark_list = manager.get_bookmarks_list()
+article_list = manager.get_bookmarks_list()
 
-# Navigate bookmarks
+# Navigate articles
 manager.next_bookmark()
 manager.prev_bookmark()
 manager.first_bookmark()
 manager.last_bookmark()
 
-# Manage bookmarks
+# Jump to a specific article by number (1-based)
+manager.set_bookmark_by_number(5)
+
+# Manage articles
 success, url, error = manager.add_bookmark_url("https://example.com")
 success, title, error = manager.star_current_bookmark()
 success, title, error = manager.archive_current_bookmark()

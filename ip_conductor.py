@@ -199,7 +199,7 @@ def run_console(manager):
             if cmd_lower == 'exit':
                 print("Goodbye!")
                 break
-            elif cmd_lower == 'bookmarks':
+            elif cmd_lower == 'bookmarks' or cmd_lower == 'articles':
                 display_bookmarks(manager)
             elif cmd_lower == 'add':
                 handle_add_bookmark(manager)
@@ -235,7 +235,7 @@ def run_console(manager):
                 except ValueError:
                     print("Invalid bookmark number. Usage: read <number>")
             else:
-                print("Unknown command. Try 'bookmarks', 'add', 'delete', 'star', "
+                print("Unknown command. Try 'bookmarks', 'articles', 'add', 'delete', 'star', "
                       "'highlight', 'archive', 'title', 'next', 'prev', 'first', "
                       "'last', 'read', 'read <number>', or 'exit'.")
         except KeyboardInterrupt:
