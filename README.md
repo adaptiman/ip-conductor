@@ -83,12 +83,13 @@ python ip_conductor.py
 
 #### Navigation
 - `title` - Show current article title
+- `<number>` - Navigate to article by number and display its title (e.g., `5` jumps to article 5)
 - `next` - Move to next article
 - `prev` / `previous` - Move to previous article
 - `first` - Jump to first article
 - `last` - Jump to last article
 - `read` - Read current article content
-- `read <number>` - Read a specific article by its number from the list
+- `read <number>` - Navigate to and read a specific article by its number from the list
 
 #### System
 - `exit` - Quit the application
@@ -98,6 +99,7 @@ python ip_conductor.py
 - **Environment-based configuration**: Secure credential storage using `.env` files
 - **Virtual environment support**: Isolated dependencies per project
 - **Numbered article listing**: Articles are displayed with numbers for easy reference
+- **Quick navigation**: Jump to any article by simply entering its number
 - **Direct article access**: Jump to and read any article by its number
 - **Configurable article limit**: The application fetches 25 articles by default (configurable in `ArticleManager` initialization)
 - **Error handling**: Comprehensive error handling for network issues, API errors, and invalid operations
@@ -115,15 +117,26 @@ python ip_conductor.py
 
 # List all articles with numbers
 > articles
+1. Understanding Python Decorators
+2. Introduction to Machine Learning
+3. Web Development Best Practices
+4. Advanced Git Techniques
+5. Docker for Beginners
 
-# Read a specific article by number
-> read 3
+# Quick jump to article 3 by entering just the number
+> 3
+Web Development Best Practices
 
-# Navigate to another article
-> next
-
-# Read the current article
+# Read the current article (now article 3)
 > read
+
+# Or jump and read in one command
+> read 5
+[Displays content of "Docker for Beginners"]
+
+# Navigate to next article
+> next
+[Now at article 6]
 
 # Create a highlight
 > highlight

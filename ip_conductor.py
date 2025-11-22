@@ -235,9 +235,17 @@ def run_console(manager):
                 except ValueError:
                     print("Invalid bookmark number. Usage: read <number>")
             else:
-                print("Unknown command. Try 'bookmarks', 'articles', 'add', 'delete', 'star', "
-                      "'highlight', 'archive', 'title', 'next', 'prev', 'first', "
-                      "'last', 'read', 'read <number>', or 'exit'.")
+                # Check if the input is just a number
+                try:
+                    bookmark_num = int(cmd)
+                    if manager.set_bookmark_by_number(bookmark_num):
+                        display_title(manager)
+                    else:
+                        print(f"Invalid article number: {bookmark_num}")
+                except ValueError:
+                    print("Unknown command. Try 'bookmarks', 'articles', 'add', 'delete', 'star', "
+                          "'highlight', 'archive', 'title', 'next', 'prev', 'first', "
+                          "'last', 'read', 'read <number>', or 'exit'.")
         except KeyboardInterrupt:
             print("\nGoodbye!")
             break
