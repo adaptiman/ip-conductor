@@ -4,6 +4,8 @@ import time
 import sys
 import tty
 import termios
+import textwrap
+import os
 from article_manager import ArticleManager
 
 
@@ -173,6 +175,9 @@ def handle_speak(manager):
     print(f"\n--- Entering Speak Mode ({len(sentences)} sentences) ---")
     print("Press SPACE for next, B for back, H to highlight, Q to quit\n")
 
+    # Get line width from environment variable, default to 70
+    line_width = int(os.getenv('SPEAK_LINE_WIDTH', '70'))
+
     # Save terminal settings
     fd = sys.stdin.fileno()
     old_settings = termios.tcgetattr(fd)
@@ -194,6 +199,11 @@ def handle_speak(manager):
 
             # Display sentence centered vertically (only if flag is True)
             if display_sentence:
+                # Wrap the sentence text using configured line width
+                wrapped_lines = textwrap.wrap(sentence_text, width=line_width)
+                # Join with \n\r to ensure cursor returns to column 0 after each line
+                wrapped_text = "\n\r".join(wrapped_lines)
+                
                 # Clear screen
                 sys.stdout.write("\033[2J")
                 # Calculate vertical center (roughly middle of screen)
@@ -201,8 +211,8 @@ def handle_speak(manager):
                 # Move cursor to top and add padding
                 sys.stdout.write("\033[H")  # Move cursor to home position
                 sys.stdout.write("\n" * padding_lines)
-                # Display sentence count and sentence
-                sys.stdout.write(f"[{sentence_index + 1}/{len(sentences)}]\n\r{sentence_text}")
+                # Display sentence count and wrapped sentence (with \r after newline)
+                sys.stdout.write(f"[{sentence_index + 1}/{len(sentences)}]\n\r{wrapped_text}")
                 sys.stdout.flush()
 
             # Wait for key press

@@ -62,6 +62,13 @@ This design allows you to easily integrate Instapaper functionality into other P
    INSTAPAPER_CONSUMER_SECRET=your_consumer_secret
    ```
 
+3. (Optional) Configure speak mode line width:
+   ```bash
+   SPEAK_LINE_WIDTH=70  # Default is 70 characters
+   ```
+   
+   This controls how text wraps in speak mode. Adjust based on your terminal width and reading preference.
+
 **Note**: Never commit your `.env` file to version control. It's already included in `.gitignore`.
 
 ## Usage
