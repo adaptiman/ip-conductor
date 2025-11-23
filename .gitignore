@@ -87,5 +87,8 @@ Thumbs.db
 .netrc
 *.log
 
+# Development scripts
+format-modified.sh
+
 # Test files
 test_manager.py
