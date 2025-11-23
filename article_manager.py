@@ -1,9 +1,10 @@
 """ArticleManager class for managing Instapaper bookmark operations and navigation."""
 
 import os
-from dotenv import load_dotenv
-import instapaper # type: ignore
+
+import instapaper
 import spacy
+from dotenv import load_dotenv
 
 
 class ArticleManager:
@@ -24,19 +25,25 @@ class ArticleManager:
 
         try:
             # Get credentials from environment variables
-            login = os.getenv('INSTAPAPER_USERNAME')
-            password = os.getenv('INSTAPAPER_PASSWORD')
-            consumerkey = os.getenv('INSTAPAPER_CONSUMER_KEY')
-            consumersecret = os.getenv('INSTAPAPER_CONSUMER_SECRET')
+            login = os.getenv("INSTAPAPER_USERNAME")
+            password = os.getenv("INSTAPAPER_PASSWORD")
+            consumerkey = os.getenv("INSTAPAPER_CONSUMER_KEY")
+            consumersecret = os.getenv("INSTAPAPER_CONSUMER_SECRET")
 
             # Validate that all credentials are present
             if not all([login, password, consumerkey, consumersecret]):
                 missing = []
-                if not login: missing.append('INSTAPAPER_USERNAME')
-                if not password: missing.append('INSTAPAPER_PASSWORD')
-                if not consumerkey: missing.append('INSTAPAPER_CONSUMER_KEY')
-                if not consumersecret: missing.append('INSTAPAPER_CONSUMER_SECRET')
-                raise ValueError(f"Missing required environment variables: {', '.join(missing)}")
+                if not login:
+                    missing.append("INSTAPAPER_USERNAME")
+                if not password:
+                    missing.append("INSTAPAPER_PASSWORD")
+                if not consumerkey:
+                    missing.append("INSTAPAPER_CONSUMER_KEY")
+                if not consumersecret:
+                    missing.append("INSTAPAPER_CONSUMER_SECRET")
+                raise ValueError(
+                    f"Missing required environment variables: {', '.join(missing)}"
+                )
 
             self.instapaper_client = instapaper.Instapaper(consumerkey, consumersecret)
             self.instapaper_client.login(login, password)
@@ -51,6 +58,8 @@ class ArticleManager:
 
     def _get_bookmarks(self):
         """Get bookmarks with error handling."""
+        if self.instapaper_client is None:
+            return None
         try:
             return self.instapaper_client.bookmarks(limit=self.bookmark_limit)
         except (AttributeError, ValueError, RuntimeError, OSError):
@@ -161,7 +170,7 @@ class ArticleManager:
             # Create a new Bookmark object and save it
             # The instapaper library requires creating a Bookmark instance
             # with the parent client and params, then calling save()
-            bookmark = instapaper.Bookmark(self.instapaper_client, {'url': url})
+            bookmark = instapaper.Bookmark(self.instapaper_client, {"url": url})
             bookmark.save()
             return (True, url, None)
         except (AttributeError, ValueError, RuntimeError, OSError) as e:
@@ -286,7 +295,7 @@ class ArticleManager:
     def _load_spacy_model(self):
         """Lazy load the spaCy model when needed."""
         if self._nlp is None:
-            self._nlp = spacy.load('en_core_web_sm')
+            self._nlp = spacy.load("en_core_web_sm")
         return self._nlp
 
     def parse_current_article_sentences(self):

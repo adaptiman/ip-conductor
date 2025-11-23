@@ -9,9 +9,18 @@ def example_usage():
     # Initialize the manager
     print("Creating ArticleManager instance...")
     try:
-        manager = ArticleManager(bookmark_limit=10)  # Limit to 10 bookmarks for this example
+        manager = ArticleManager(
+            bookmark_limit=10
+        )  # Limit to 10 bookmarks for this example
         print("✅ ArticleManager initialized successfully!")
-    except (AttributeError, ValueError, RuntimeError, OSError, KeyError, FileNotFoundError) as e:
+    except (
+        AttributeError,
+        ValueError,
+        RuntimeError,
+        OSError,
+        KeyError,
+        FileNotFoundError,
+    ) as e:
         print(f"❌ Failed to initialize ArticleManager: {e}")
         return
 
@@ -100,7 +109,9 @@ def example_usage():
 
     print("\n✅ Example completed!")
     print("👍 Note: All operations return data instead of printing directly")
-    print("   This makes ArticleManager perfect for integration with other applications!")
+    print(
+        "   This makes ArticleManager perfect for integration with other applications!"
+    )
 
 
 if __name__ == "__main__":

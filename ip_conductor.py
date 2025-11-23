@@ -1,18 +1,19 @@
 """A simple console application to interact with Instapaper bookmarks."""
 
-import time
+import os
 import sys
-import tty
 import termios
 import textwrap
-import os
+import time
+import tty
+
 from article_manager import ArticleManager
 
 
 def slow_print(text, delay=0.05):
     """Prints strings slowly to the console."""
     for char in text:
-        print(char, end='', flush=True)
+        print(char, end="", flush=True)
         time.sleep(delay)
     print()
 
@@ -37,8 +38,7 @@ def display_article(manager, bookmark_number=None):
         bookmark_number: Optional bookmark number (1-based) to read. If None, reads current bookmark.
     """
     # Get line width from environment variable, default to 70
-    line_width = int(os.getenv('SPEAK_LINE_WIDTH', '70'))
-    
+    line_width = int(os.getenv("SPEAK_LINE_WIDTH", "70"))
     if bookmark_number is not None:
         # Navigate to and read specific bookmark by number
         if manager.set_bookmark_by_number(bookmark_number):
@@ -145,10 +145,12 @@ def handle_create_highlight(manager):
         print("No text entered. Highlight cancelled.")
         return
 
-    success, title, highlight, error = manager.create_highlight_for_current(highlight_text)
+    success, title, highlight, error = manager.create_highlight_for_current(
+        highlight_text
+    )
     if success:
         print("Highlight created successfully!")
-        ellipsis = '...' if len(highlight) > 100 else ''
+        ellipsis = "..." if len(highlight) > 100 else ""
         print(f"Highlighted text: {highlight[:100]}{ellipsis}")
     else:
         print(f"Error creating highlight: {error}")
@@ -179,7 +181,7 @@ def handle_speak(manager):
     print("Press SPACE for next, B for back, H to highlight, Q to quit\n")
 
     # Get line width from environment variable, default to 70
-    line_width = int(os.getenv('SPEAK_LINE_WIDTH', '70'))
+    line_width = int(os.getenv("SPEAK_LINE_WIDTH", "70"))
 
     # Save terminal settings
     fd = sys.stdin.fileno()
@@ -187,6 +189,7 @@ def handle_speak(manager):
 
     # Get terminal size
     import shutil
+
     terminal_height = shutil.get_terminal_size().lines
 
     try:
@@ -215,33 +218,39 @@ def handle_speak(manager):
                 sys.stdout.write("\033[H")  # Move cursor to home position
                 sys.stdout.write("\n" * padding_lines)
                 # Display sentence count and wrapped sentence (with \r after newline)
-                sys.stdout.write(f"[{sentence_index + 1}/{len(sentences)}]\n\r{wrapped_text}")
+                sys.stdout.write(
+                    f"[{sentence_index + 1}/{len(sentences)}]\n\r{wrapped_text}"
+                )
                 sys.stdout.flush()
 
             # Wait for key press
             key = sys.stdin.read(1)
 
-            if key.lower() == 'q':
+            if key.lower() == "q":
                 break
-            elif key == ' ':
+            elif key == " ":
                 sentence_index += 1
                 display_sentence = True
-            elif key.lower() == 'b':
+            elif key.lower() == "b":
                 # Go back one sentence
                 if sentence_index > 0:
                     sentence_index -= 1
                 display_sentence = True
                 # If already at first sentence, do nothing (stay at index 0)
-            elif key.lower() == 'h':
+            elif key.lower() == "h":
                 # Highlight the current sentence
                 sys.stdout.write("\n\r")  # New line and return to start
                 sys.stdout.flush()
                 # Restore terminal to normal mode temporarily for the highlight operation
                 termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
 
-                success, title, highlight, error = manager.create_highlight_for_current(sentence_text)
+                success, _, _, error = manager.create_highlight_for_current(
+                    sentence_text
+                )
                 if success:
-                    print(f"✓ Highlighted: {sentence_text[:50]}{'...' if len(sentence_text) > 50 else ''}")
+                    print(
+                        f"✓ Highlighted: {sentence_text[:50]}{'...' if len(sentence_text) > 50 else ''}"
+                    )
                 else:
                     print(f"✗ Error highlighting: {error}")
 
@@ -287,50 +296,54 @@ def handle_navigation(manager, direction):
 def run_console(manager):
     """Main console interface."""
     print("Welcome to the Instapaper Console App!")
-    print("Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, "
-          "'delete' to delete current bookmark, 'star' to star current bookmark, "
-          "'highlight' to create a highlight, 'archive' to archive current bookmark, "
-          "'speak' to read article sentence by sentence, or 'exit' to quit.")
-    print("Navigation: 'title', 'next', 'prev', 'first', 'last', 'read', 'read <number>'")
+    print(
+        "Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, "
+        "'delete' to delete current bookmark, 'star' to star current bookmark, "
+        "'highlight' to create a highlight, 'archive' to archive current bookmark, "
+        "'speak' to read article sentence by sentence, or 'exit' to quit."
+    )
+    print(
+        "Navigation: 'title', 'next', 'prev', 'first', 'last', 'read', 'read <number>'"
+    )
 
     # Display the current bookmark title at startup
     display_title(manager)
 
     while True:
         try:
-            cmd = input('> ').strip()
+            cmd = input("> ").strip()
             cmd_lower = cmd.lower()
 
-            if cmd_lower == 'exit':
+            if cmd_lower == "exit":
                 print("Goodbye!")
                 break
-            elif cmd_lower == 'bookmarks' or cmd_lower == 'articles':
+            elif cmd_lower == "bookmarks" or cmd_lower == "articles":
                 display_bookmarks(manager)
-            elif cmd_lower == 'add':
+            elif cmd_lower == "add":
                 handle_add_bookmark(manager)
-            elif cmd_lower == 'delete':
+            elif cmd_lower == "delete":
                 handle_delete_bookmark(manager)
-            elif cmd_lower == 'star':
+            elif cmd_lower == "star":
                 handle_star_bookmark(manager)
-            elif cmd_lower == 'highlight':
+            elif cmd_lower == "highlight":
                 handle_create_highlight(manager)
-            elif cmd_lower == 'archive':
+            elif cmd_lower == "archive":
                 handle_archive_bookmark(manager)
-            elif cmd_lower == 'speak':
+            elif cmd_lower == "speak":
                 handle_speak(manager)
-            elif cmd_lower == 'title':
+            elif cmd_lower == "title":
                 display_title(manager)
-            elif cmd_lower == 'next':
+            elif cmd_lower == "next":
                 handle_navigation(manager, "next")
-            elif cmd_lower == 'previous' or cmd_lower == 'prev':
+            elif cmd_lower == "previous" or cmd_lower == "prev":
                 handle_navigation(manager, "prev")
-            elif cmd_lower == 'first':
+            elif cmd_lower == "first":
                 handle_navigation(manager, "first")
-            elif cmd_lower == 'last':
+            elif cmd_lower == "last":
                 handle_navigation(manager, "last")
-            elif cmd_lower == 'read':
+            elif cmd_lower == "read":
                 display_article(manager)
-            elif cmd_lower.startswith('read '):
+            elif cmd_lower.startswith("read "):
                 # Handle "read <number>" command
                 try:
                     parts = cmd.split()
@@ -350,9 +363,11 @@ def run_console(manager):
                     else:
                         print(f"Invalid article number: {bookmark_num}")
                 except ValueError:
-                    print("Unknown command. Try 'bookmarks', 'articles', 'add', 'delete', 'star', "
-                          "'highlight', 'archive', 'speak', 'title', 'next', 'prev', 'first', "
-                          "'last', 'read', 'read <number>', or 'exit'.")
+                    print(
+                        "Unknown command. Try 'bookmarks', 'articles', 'add', 'delete', 'star', "
+                        "'highlight', 'archive', 'speak', 'title', 'next', 'prev', 'first', "
+                        "'last', 'read', 'read <number>', or 'exit'."
+                    )
         except KeyboardInterrupt:
             print("\nGoodbye!")
             break
