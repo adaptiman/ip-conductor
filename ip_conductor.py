@@ -30,18 +30,23 @@ def display_title(manager):
 
 
 def display_article(manager, bookmark_number=None):
-    """Display the bookmark content.
+    """Display the bookmark content with word wrapping.
 
     Args:
         manager: The ArticleManager instance
         bookmark_number: Optional bookmark number (1-based) to read. If None, reads current bookmark.
     """
+    # Get line width from environment variable, default to 70
+    line_width = int(os.getenv('SPEAK_LINE_WIDTH', '70'))
+    
     if bookmark_number is not None:
         # Navigate to and read specific bookmark by number
         if manager.set_bookmark_by_number(bookmark_number):
             article = manager.get_current_article()
             if article:
-                print(article)
+                # Apply word wrapping to the article text
+                wrapped_text = textwrap.fill(article, width=line_width)
+                print(wrapped_text)
             else:
                 print(f"Unable to read bookmark {bookmark_number}")
         else:
@@ -50,7 +55,9 @@ def display_article(manager, bookmark_number=None):
         # Read current bookmark
         article = manager.get_current_article()
         if article:
-            print(article)
+            # Apply word wrapping to the article text
+            wrapped_text = textwrap.fill(article, width=line_width)
+            print(wrapped_text)
         else:
             if manager.get_bookmark_count() == 0:
                 print("No bookmarks found.")
