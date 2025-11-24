@@ -297,13 +297,12 @@ def run_console(manager):
     """Main console interface."""
     print("Welcome to the Instapaper Console App!")
     print(
-        "Type 'bookmarks' to list bookmarks, 'add' to add a bookmark, "
-        "'delete' to delete current bookmark, 'star' to star current bookmark, "
-        "'highlight' to create a highlight, 'archive' to archive current bookmark, "
-        "'speak' to read article sentence by sentence, or 'exit' to quit."
+        "Commands: 'bookmarks' (a), 'add', 'delete' (d), 'star' (s), 'highlight', "
+        "'archive' (c), 'speak' (k), 'read' (r), or 'exit'."
     )
+    print("Navigation: 'title', 'next' (n), 'prev' (p), 'first', 'last'")
     print(
-        "Navigation: 'title', 'next', 'prev', 'first', 'last', 'read', 'read <number>'"
+        "With numbers: 'read <number>' (r <number>), 'speak <number>' (k <number>), '<number>'"
     )
 
     # Display the current bookmark title at startup
@@ -317,43 +316,61 @@ def run_console(manager):
             if cmd_lower == "exit":
                 print("Goodbye!")
                 break
-            elif cmd_lower == "bookmarks" or cmd_lower == "articles":
+            elif (
+                cmd_lower == "bookmarks" or cmd_lower == "articles" or cmd_lower == "a"
+            ):
                 display_bookmarks(manager)
             elif cmd_lower == "add":
                 handle_add_bookmark(manager)
-            elif cmd_lower == "delete":
+            elif cmd_lower == "delete" or cmd_lower == "d":
                 handle_delete_bookmark(manager)
-            elif cmd_lower == "star":
+            elif cmd_lower == "star" or cmd_lower == "s":
                 handle_star_bookmark(manager)
             elif cmd_lower == "highlight":
                 handle_create_highlight(manager)
-            elif cmd_lower == "archive":
+            elif cmd_lower == "archive" or cmd_lower == "c":
                 handle_archive_bookmark(manager)
-            elif cmd_lower == "speak":
+            elif cmd_lower == "speak" or cmd_lower == "k":
                 handle_speak(manager)
             elif cmd_lower == "title":
                 display_title(manager)
-            elif cmd_lower == "next":
+            elif cmd_lower == "next" or cmd_lower == "n":
                 handle_navigation(manager, "next")
-            elif cmd_lower == "previous" or cmd_lower == "prev":
+            elif cmd_lower == "previous" or cmd_lower == "prev" or cmd_lower == "p":
                 handle_navigation(manager, "prev")
             elif cmd_lower == "first":
                 handle_navigation(manager, "first")
             elif cmd_lower == "last":
                 handle_navigation(manager, "last")
-            elif cmd_lower == "read":
+            elif cmd_lower == "read" or cmd_lower == "r":
                 display_article(manager)
-            elif cmd_lower.startswith("read "):
-                # Handle "read <number>" command
+            elif cmd_lower.startswith("read ") or cmd_lower.startswith("r "):
+                # Handle "read <number>" or "r <number>" command
                 try:
                     parts = cmd.split()
                     if len(parts) == 2:
                         bookmark_num = int(parts[1])
                         display_article(manager, bookmark_num)
                     else:
-                        print("Usage: read <number>")
+                        print("Usage: read <number> or r <number>")
                 except ValueError:
-                    print("Invalid bookmark number. Usage: read <number>")
+                    print("Invalid bookmark number. Usage: read <number> or r <number>")
+            elif cmd_lower.startswith("speak ") or cmd_lower.startswith("k "):
+                # Handle "speak <number>" or "k <number>" command
+                try:
+                    parts = cmd.split()
+                    if len(parts) == 2:
+                        bookmark_num = int(parts[1])
+                        if manager.set_bookmark_by_number(bookmark_num):
+                            handle_speak(manager)
+                        else:
+                            print(f"Invalid article number: {bookmark_num}")
+                    else:
+                        print("Usage: speak <number> or k <number>")
+                except ValueError:
+                    print(
+                        "Invalid bookmark number. Usage: speak <number> or k <number>"
+                    )
             else:
                 # Check if the input is just a number
                 try:
@@ -364,9 +381,9 @@ def run_console(manager):
                         print(f"Invalid article number: {bookmark_num}")
                 except ValueError:
                     print(
-                        "Unknown command. Try 'bookmarks', 'articles', 'add', 'delete', 'star', "
-                        "'highlight', 'archive', 'speak', 'title', 'next', 'prev', 'first', "
-                        "'last', 'read', 'read <number>', or 'exit'."
+                        "Unknown command. Try: 'bookmarks' (a), 'add', 'delete' (d), 'star' (s), "
+                        "'highlight', 'archive' (c), 'speak' (k), 'read' (r), 'next' (n), 'prev' (p), "
+                        "'first', 'last', 'title', '<number>', 'read <number>', 'speak <number>', or 'exit'."
                     )
         except KeyboardInterrupt:
             print("\nGoodbye!")

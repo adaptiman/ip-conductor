@@ -86,26 +86,43 @@ python ip_conductor.py
 ### Available Commands
 
 #### Article Management
-- `articles` / `bookmarks` - List all articles with numbers (up to 25 by default)
+- `articles` / `bookmarks` / `a` - List all articles with numbers (up to 25 by default)
 - `add` - Add a new article by entering a URL
-- `delete` - Delete the currently selected article (with confirmation)
-- `star` - Star the currently selected article
-- `archive` - Archive the currently selected article
+- `delete` / `d` - Delete the currently selected article (with confirmation)
+- `star` / `s` - Star the currently selected article
+- `archive` / `c` - Archive the currently selected article
 - `highlight` - Create a highlight for the current article (multi-line text input)
-- `speak` - Enter sentence-by-sentence reading mode with highlighting support
+- `speak` / `k` - Enter sentence-by-sentence reading mode with highlighting support
+- `speak <number>` / `k <number>` - Navigate to and speak a specific article by its number
 
 #### Navigation
 - `title` - Show current article title
 - `<number>` - Navigate to article by number and display its title (e.g., `5` jumps to article 5)
-- `next` - Move to next article
-- `prev` / `previous` - Move to previous article
+- `next` / `n` - Move to next article
+- `prev` / `previous` / `p` - Move to previous article
 - `first` - Jump to first article
 - `last` - Jump to last article
-- `read` - Read current article content
-- `read <number>` - Navigate to and read a specific article by its number from the list
+- `read` / `r` - Read current article content
+- `read <number>` / `r <number>` - Navigate to and read a specific article by its number from the list
 
 #### System
 - `exit` - Quit the application
+
+### Keyboard Shortcuts
+
+For faster navigation, single-letter shortcuts are available for common commands:
+- `a` - Articles/bookmarks list
+- `n` - Next article
+- `p` - Previous article  
+- `d` - Delete current article
+- `s` - Star current article
+- `c` - Archive current article
+- `r` - Read current article
+- `k` - Speak current article
+
+**With article numbers:**
+- `r 3` - Read article 3
+- `k 5` - Speak article 5
 
 ### Speak Mode
 
@@ -149,8 +166,8 @@ source .venv/bin/activate
 # Start the application
 python ip_conductor.py
 
-# List all articles with numbers
-> articles
+# List all articles with numbers (using shortcut)
+> a
 1. Understanding Python Decorators
 2. Introduction to Machine Learning
 3. Web Development Best Practices
@@ -161,15 +178,15 @@ python ip_conductor.py
 > 3
 Web Development Best Practices
 
-# Read the current article (now article 3)
-> read
+# Read the current article using shortcut
+> r
 
-# Or jump and read in one command
-> read 5
+# Or jump and read in one command using shortcut
+> r 5
 [Displays content of "Docker for Beginners"]
 
-# Enter speak mode for sentence-by-sentence reading
-> speak
+# Enter speak mode for sentence-by-sentence reading using shortcut
+> k
 [1/350] [0,45]
 Docker is a platform for developing applications.
 # Press SPACE to see next sentence
@@ -177,8 +194,12 @@ Docker is a platform for developing applications.
 # Press B to go back to previous sentence
 # Press Q to quit speak mode
 
-# Navigate to next article
-> next
+# Or speak a specific article directly
+> k 2
+[Opens speak mode for article 2: "Introduction to Machine Learning"]
+
+# Navigate to next article using shortcut
+> n
 [Now at article 6]
 
 # Create a highlight
@@ -187,11 +208,11 @@ Enter the text you want to highlight (press Enter twice to finish):
 This is important text
 that I want to remember.
 
-# Star the article
-> star
+# Star the article using shortcut
+> s
 
-# Archive when done
-> archive
+# Archive when done using shortcut  
+> c
 
 # Exit
 > exit
