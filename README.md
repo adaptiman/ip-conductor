@@ -66,7 +66,7 @@ This design allows you to easily integrate Instapaper functionality into other P
    ```bash
    SPEAK_LINE_WIDTH=70  # Default is 70 characters
    ```
-   
+
    This controls how text wraps in speak mode. Adjust based on your terminal width and reading preference.
 
 **Note**: Never commit your `.env` file to version control. It's already included in `.gitignore`.
@@ -113,7 +113,7 @@ python ip_conductor.py
 For faster navigation, single-letter shortcuts are available for common commands:
 - `a` - Articles/bookmarks list
 - `n` - Next article
-- `p` - Previous article  
+- `p` - Previous article
 - `d` - Delete current article
 - `s` - Star current article
 - `c` - Archive current article
@@ -211,7 +211,7 @@ that I want to remember.
 # Star the article using shortcut
 > s
 
-# Archive when done using shortcut  
+# Archive when done using shortcut
 > c
 
 # Exit
