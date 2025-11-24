@@ -199,15 +199,26 @@ that I want to remember.
 
 ## Dependencies
 
-- `instapaper==0.5` - Instapaper API client
-- `oauth2==1.9.0.post1` - OAuth authentication
-- `httplib2==0.31.0` - HTTP client library
-- `python-dotenv==1.2.1` - Environment variable management
-- `spacy==3.8.3` - Natural language processing for sentence parsing
-- `en-core-web-sm` - English language model for spaCy
+### Core Application Dependencies
+- `instapaper==0.5` - Instapaper API client for bookmark management
+- `oauth2==1.9.0.post1` - OAuth authentication for Instapaper API
+- `httplib2==0.31.0` - HTTP client library for API requests
+- `python-dotenv==1.2.1` - Environment variable management for configuration
+- `spacy==3.8.11` - Natural language processing for sentence parsing
+- `en-core-web-sm` - English language model for spaCy (downloaded separately)
 - `setuptools==80.9.0` - Python package utilities (required for Python 3.12+)
 
-All dependencies are listed in `requirements.txt` and will be installed automatically.
+### Development and Code Quality Tools
+- `black==25.11.0` - Code formatter for consistent Python code style
+- `flake8==7.3.0` - Style guide enforcement (PEP 8 compliance)
+- `isort==7.0.0` - Import statement organizer and sorter
+- `mypy==1.18.2` - Static type checker for Python
+- `pylint==4.0.3` - Comprehensive code analysis and linting
+
+### Additional Dependencies
+The application also includes various supporting packages for spaCy, HTTP handling, and data processing. See `requirements.txt` for the complete list of dependencies with exact versions.
+
+All dependencies are listed in `requirements.txt` and will be installed automatically with `pip install -r requirements.txt`.
 
 ## Customization
 
@@ -270,6 +281,57 @@ The application is designed to be easily extensible. To add new commands:
 3. Add a command handler function in `ip_conductor.py` (following the pattern of existing handlers)
 4. Add the command to the main command loop in the `run_console()` function
 5. Update the help messages to include the new command
+
+## Development Tools and Code Quality
+
+This project includes comprehensive code quality tools to maintain clean, consistent, and error-free Python code:
+
+### Available Tools
+- **Black**: Automatic code formatting for consistent style
+- **isort**: Import statement organization and sorting
+- **Flake8**: Style guide enforcement (PEP 8 compliance)
+- **Pylint**: Comprehensive code analysis and quality checking
+- **Mypy**: Static type checking for better code reliability
+
+### Usage
+
+#### Run all linting and formatting tools:
+```bash
+./lint.sh
+```
+
+#### Run individual tools:
+```bash
+# Format code automatically
+black ip_conductor.py article_manager.py
+
+# Sort and organize imports
+isort ip_conductor.py article_manager.py
+
+# Check code style (PEP 8)
+flake8 ip_conductor.py article_manager.py
+
+# Comprehensive code analysis
+pylint ip_conductor.py article_manager.py
+
+# Static type checking
+mypy ip_conductor.py article_manager.py --ignore-missing-imports
+```
+
+### Configuration
+- **`.flake8`**: Flake8 configuration with 88-character line length
+- **`pyproject.toml`**: Centralized configuration for Black, isort, Pylint, and Mypy
+- **`lint.sh`**: Convenient script to run all tools in sequence
+
+### VS Code Integration
+The project includes VS Code settings that integrate these tools for real-time feedback. Install these recommended extensions:
+- Python (ms-python.python)
+- Pylint (ms-python.pylint)
+- Black Formatter (ms-python.black-formatter)
+- isort (ms-python.isort)
+- Mypy Type Checker (ms-python.mypy-type-checker)
+
+For more details, see `LINTING.md`.
 
 ## VS Code Setup (WSL)
 
